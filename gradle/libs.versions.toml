@@ -1,0 +1,21 @@
+[versions]
+bstats = "3.1.0"
+adventure = "4.25.0"
+
+[libraries]
+platform-paper = { module = "io.papermc.paper:paper-api", version = "1.21.11-R0.1-SNAPSHOT" }
+platform-velocity = { module = "com.velocitypowered:velocity-api", version = "3.4.0-SNAPSHOT" }
+
+storage-sqlite = { module = "org.xerial:sqlite-jdbc", version = "3.51.1.0" }
+
+cloud-jda = { module = "org.incendo:cloud-jda6", version = "1.0.0-SNAPSHOT" }
+cloud-translations = { module = "org.incendo:cloud-translations-core", version = "1.0.0-beta.2" }
+
+adventure = { module = "net.kyori:adventure-api", version.ref = "adventure" }
+adventure-text-minimessage = { module = "net.kyori:adventure-text-minimessage", version.ref = "adventure" }
+bstats-bukkit = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+dazzleconf = { module = "space.arim.dazzleconf:dazzleconf-toml", version = "2.0.0-M1" }
+gson = { module = "com.google.code.gson:gson", version = "2.13.2" }
+luckperms = { module = "net.luckperms:api", version = "5.5" }
+jda = { module = "net.dv8tion:JDA", version = "6.3.0" }
+slf4j = { module = "org.slf4j:slf4j-api", version = "2.0.16" }
