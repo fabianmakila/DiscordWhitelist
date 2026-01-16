@@ -6,6 +6,7 @@ import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
 import fi.fabianadrian.discordwhitelist.common.storage.Storage;
 
+import java.nio.ByteBuffer;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +15,7 @@ import java.util.UUID;
 
 public final class SQLiteStorage implements Storage {
 	private static final String STATEMENT_CREATE_TABLE = """
-			CREATE TABLE dw_data (
+			CREATE TABLE IF NOT EXISTS dw_data (
 			minecraft_identifier BLOB PRIMARY KEY,
 			minecraft_username  TEXT,
 			discord_identifier TEXT,
@@ -66,13 +67,12 @@ public final class SQLiteStorage implements Storage {
 	public Collection<Data> selectByDiscordIdentifier(long discordIdentifier) throws SQLException {
 		try (Connection connection = this.factory.connection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_SELECT_BY_DISCORD_IDENTIFIER);
-			statement.setString(0, String.valueOf(discordIdentifier));
+			statement.setString(1, String.valueOf(discordIdentifier));
 			ResultSet resultSet = statement.executeQuery();
 
 			List<Data> dataList = new ArrayList<>();
 			while (resultSet.next()) {
-				byte[] uuidBytes = resultSet.getBytes("minecraft_identifier");
-				UUID minecraftIdentifier = new UUID(uuidBytes[0], uuidBytes[1]);
+				UUID minecraftIdentifier = bytesToUUID(resultSet.getBytes("minecraft_identifier"));
 
 				String minecraftUsername = resultSet.getString("minecraft_username");
 				MinecraftProfile minecraftProfile = new MinecraftProfile(minecraftIdentifier, minecraftUsername);
@@ -91,7 +91,7 @@ public final class SQLiteStorage implements Storage {
 	public Data selectByMinecraftIdentifier(UUID minecraftIdentifier) throws SQLException {
 		try (Connection connection = this.factory.connection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_SELECT_BY_MINECRAFT_IDENTIFIER);
-			statement.setBytes(0, minecraftIdentifier.toString().getBytes());
+			statement.setBytes(1, uuidToBytes(minecraftIdentifier));
 			ResultSet resultSet = statement.executeQuery();
 
 			if (!resultSet.next()) {
@@ -118,10 +118,10 @@ public final class SQLiteStorage implements Storage {
 	public void upsert(Data data) throws SQLException {
 		try (Connection connection = this.factory.connection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_UPSERT);
-			statement.setBytes(0, data.minecraftProfile().identifier().toString().getBytes());
-			statement.setString(1, data.minecraftProfile().username());
-			statement.setString(2, data.discordProfile().identifier().toString());
-			statement.setString(3, data.discordProfile().username());
+			statement.setBytes(1, uuidToBytes(data.minecraftProfile().identifier()));
+			statement.setString(2, data.minecraftProfile().username());
+			statement.setString(3, data.discordProfile().identifier().toString());
+			statement.setString(4, data.discordProfile().username());
 			statement.executeUpdate();
 		}
 	}
@@ -136,5 +136,19 @@ public final class SQLiteStorage implements Storage {
 	@Override
 	public int deleteByDiscordIdentifier(long discordIdentifier) throws SQLException {
 		return 0;
+	}
+
+	private byte[] uuidToBytes(UUID uuid) {
+		ByteBuffer buffer = ByteBuffer.allocate(16);
+		buffer.putLong(uuid.getMostSignificantBits());
+		buffer.putLong(uuid.getLeastSignificantBits());
+		return buffer.array();
+	}
+
+	private UUID bytesToUUID(byte[] bytes) {
+		ByteBuffer byteBuffer = ByteBuffer.wrap(bytes);
+		long high = byteBuffer.getLong();
+		long low = byteBuffer.getLong();
+		return new UUID(high, low);
 	}
 }

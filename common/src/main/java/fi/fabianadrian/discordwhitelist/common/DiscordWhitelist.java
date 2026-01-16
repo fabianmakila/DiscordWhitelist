@@ -49,7 +49,10 @@ public final class DiscordWhitelist {
 		this.translationManager.load();
 		this.translationManager.defaultLocale(config().defaultLocale());
 
-		this.dataManager.init();
+		this.dataManager.init().exceptionally(throwable -> {
+			logger().error("Failed to initialize storage", throwable);
+			return null;
+		});
 
 		registerDiscordCommands();
 

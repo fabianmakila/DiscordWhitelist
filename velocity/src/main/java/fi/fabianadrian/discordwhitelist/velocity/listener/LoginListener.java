@@ -21,7 +21,6 @@ public final class LoginListener {
 	@Subscribe
 	public void onJoin(LoginEvent event) {
 		Player player = event.getPlayer();
-		this.plugin.logger().info("player locale is  {}", player.getEffectiveLocale());
 		if (this.plugin.discordWhitelist().storageManager().findByMinecraftIdentifier(player.getUniqueId()).join() != null) {
 			return;
 		}

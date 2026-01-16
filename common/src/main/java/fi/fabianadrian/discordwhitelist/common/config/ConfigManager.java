@@ -1,6 +1,7 @@
 package fi.fabianadrian.discordwhitelist.common.config;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
+import fi.fabianadrian.discordwhitelist.common.config.liaison.LocaleLiaison;
 import space.arim.dazzleconf.Configuration;
 import space.arim.dazzleconf.StandardErrorPrint;
 import space.arim.dazzleconf.backend.Backend;
@@ -14,7 +15,7 @@ public final class ConfigManager {
 	private DiscordWhitelistConfig config;
 
 	public ConfigManager(DiscordWhitelist discordWhitelist) {
-		this.configuration = Configuration.defaultBuilder(DiscordWhitelistConfig.class).build();
+		this.configuration = Configuration.defaultBuilder(DiscordWhitelistConfig.class).addTypeLiaisons(new LocaleLiaison()).build();
 		this.backend = new TomlBackend(new PathRoot(discordWhitelist.dataDirectory().resolve("config.toml")));
 		this.errorPrint = new StandardErrorPrint(output -> discordWhitelist.logger().error(output.printString()));
 	}

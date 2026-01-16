@@ -20,6 +20,7 @@ public final class DataManager {
 		this.storage = new SQLiteStorage(discordWhitelist);
 	}
 
+	//TODO Fix exception swallowing
 	public CompletableFuture<Void> init() {
 		return CompletableFuture.runAsync(() -> {
 			try {

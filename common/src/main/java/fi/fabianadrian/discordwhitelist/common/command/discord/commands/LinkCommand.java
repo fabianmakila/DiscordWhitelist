@@ -13,6 +13,9 @@ import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
 
+import java.util.StringJoiner;
+import java.util.concurrent.CompletableFuture;
+
 public final class LinkCommand extends DiscordCommand {
 	private final DataManager dataManager;
 
@@ -24,7 +27,7 @@ public final class LinkCommand extends DiscordCommand {
 	@Override
 	public void register() {
 		var builder = super.manager.commandBuilder("link")
-				.required("minecraftUsername", MinecraftProfileParser.minecraftProfileParser())
+				.required("minecraft-username", MinecraftProfileParser.minecraftProfileParser())
 				.handler(this::handle);
 		super.manager.command(builder);
 	}
@@ -34,41 +37,48 @@ public final class LinkCommand extends DiscordCommand {
 		assert event != null;
 
 		User user = event.getUser();
+		MinecraftProfile minecraftProfile = context.get("minecraft-username");
+
 		this.dataManager.findByDiscordIdentifier(user.getIdLong())
-				.thenAccept(collection -> {
-					if (!collection.isEmpty() && collection.size() > super.discordWhitelist.config().profileLimit()) {
-						StringBuilder builder = new StringBuilder(", ");
-						collection.forEach(profile -> builder.append(profile.minecraftProfile().username()));
+				.thenCompose(collection -> {
+					if (!collection.isEmpty() && collection.size() >= super.discordWhitelist.config().profileLimit()) {
+						StringJoiner builder = new StringJoiner(", ");
+						collection.forEach(profile -> builder.add(profile.minecraftProfile().username()));
 						sendMessage(
 								context,
-								"discord.link.error.limit",
+								"link.error.limit",
 								CaptionVariable.of("linked-minecraft-usernames", builder.toString())
 						);
-						return;
+						return CompletableFuture.completedFuture(null);
 					}
-					MinecraftProfile minecraftProfile = context.get("minecraft-username");
-					this.dataManager.findByMinecraftIdentifier(minecraftProfile.identifier())
-							.thenAccept(data -> {
+
+					return this.dataManager.findByMinecraftIdentifier(minecraftProfile.identifier())
+							.thenCompose(data -> {
 								if (data != null && data.discordProfile() != null) {
 									sendMessage(
 											context,
-											"discord.link.error.other",
+											"link.error.other",
 											CaptionVariable.of("discord-username", data.discordProfile().username()),
 											CaptionVariable.of("minecraft-username", minecraftProfile.username())
 									);
-									return;
+									return CompletableFuture.completedFuture(null);
 								}
 								data = new Data(minecraftProfile);
 								data.discordProfile(new DiscordProfile(user));
-								this.dataManager.save(data);
-
-								sendMessage(
-										context,
-										"discord.link",
-										CaptionVariable.of("minecraft-username", data.minecraftProfile().username())
-								);
-								//TODO Broadcast
+								return this.dataManager.save(data)
+										.thenRun(() -> {
+											sendMessage(
+													context,
+													"link",
+													CaptionVariable.of("minecraft-username", minecraftProfile.username())
+											);
+											//TODO Broadcast
+										});
 							});
+				}).exceptionally(throwable -> {
+					super.discordWhitelist.logger().error("Couldn't link Discord account", throwable);
+					sendMessage(context, "link.error.unknown");
+					return null;
 				});
 	}
 }

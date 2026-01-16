@@ -11,7 +11,13 @@ public final class SQLiteConnectionFactory implements ConnectionFactory {
 	private final String url;
 
 	public SQLiteConnectionFactory(Path dataDirectory) {
-		this.url = "jdbc:sqlite:" + dataDirectory.toAbsolutePath();
+		try {
+			Class.forName("org.sqlite.JDBC");
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+
+		this.url = "jdbc:sqlite:" + dataDirectory.resolve("database.db").toAbsolutePath();
 	}
 
 	@Override

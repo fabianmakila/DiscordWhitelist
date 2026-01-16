@@ -16,6 +16,8 @@ import fi.fabianadrian.discordwhitelist.velocity.listener.LoginListener;
 import fi.fabianadrian.discordwhitelist.velocity.profile.OnlineProfileResolver;
 import org.slf4j.Logger;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +34,12 @@ public final class DiscordWhitelistVelocity implements Platform {
 		this.server = server;
 		this.logger = logger;
 		this.dataDirectory = dataDirectory;
+
+		try {
+			Files.createDirectories(dataDirectory);
+		} catch (IOException e) {
+			logger.error("Failed to create dataDirectory", e);
+		}
 
 		this.discordWhitelist = new DiscordWhitelist(this);
 	}

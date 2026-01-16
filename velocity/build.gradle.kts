@@ -5,6 +5,7 @@ plugins {
 dependencies {
 	compileOnly(libs.platform.velocity)
 	implementation(project(":common"))
+	implementation(libs.storage.sqlite)
 }
 
 velocityPluginJson {
