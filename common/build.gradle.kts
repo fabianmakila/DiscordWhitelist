@@ -5,13 +5,21 @@ plugins {
 dependencies {
     compileOnly(libs.slf4j)
     compileOnly(libs.storage.sqlite)
+    compileOnly(libs.storage.mariadb)
     compileOnly(libs.adventure)
     compileOnly(libs.adventure.text.minimessage)
     compileOnly(libs.gson)
     compileOnly(libs.luckperms)
-    implementation(libs.cloud.jda)
+    implementation(libs.cloud.jda) {
+        exclude(module="opus-java")
+        exclude(module="tink")
+        exclude(module="cloud-annotations")
+    }
     implementation(libs.cloud.translations)
     implementation(libs.cloud.minecraft.extras)
+    implementation(libs.hikaricp) {
+        exclude(module="slf4j-api")
+    }
     implementation(libs.jda) {
         exclude(module="opus-java")
         exclude(module="tink")

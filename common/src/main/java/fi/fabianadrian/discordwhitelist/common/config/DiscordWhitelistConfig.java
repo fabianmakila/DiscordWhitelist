@@ -1,6 +1,8 @@
 package fi.fabianadrian.discordwhitelist.common.config;
 
+import fi.fabianadrian.discordwhitelist.common.config.section.StorageSection;
 import space.arim.dazzleconf.engine.Comments;
+import space.arim.dazzleconf.engine.liaison.SubSection;
 
 import java.util.Locale;
 
@@ -18,4 +20,7 @@ public interface DiscordWhitelistConfig {
 	default Locale defaultLocale() {
 		return Locale.ENGLISH;
 	}
+
+	@SubSection
+	StorageSection storage();
 }

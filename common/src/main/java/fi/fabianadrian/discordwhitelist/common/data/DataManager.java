@@ -1,8 +1,9 @@
 package fi.fabianadrian.discordwhitelist.common.data;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
+import fi.fabianadrian.discordwhitelist.common.storage.MariaDBStorage;
+import fi.fabianadrian.discordwhitelist.common.storage.SQLiteStorage;
 import fi.fabianadrian.discordwhitelist.common.storage.Storage;
-import fi.fabianadrian.discordwhitelist.common.storage.sqlite.SQLiteStorage;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -13,22 +14,27 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public final class DataManager {
-	private final Storage storage;
 	private final Executor executor = Executors.newSingleThreadExecutor();
+	private final DiscordWhitelist discordWhitelist;
+	private Storage storage;
 
 	public DataManager(DiscordWhitelist discordWhitelist) {
-		this.storage = new SQLiteStorage(discordWhitelist);
+		this.discordWhitelist = discordWhitelist;
 	}
 
-	//TODO Fix exception swallowing
-	public CompletableFuture<Void> init() {
-		return CompletableFuture.runAsync(() -> {
-			try {
-				this.storage.createTable();
-			} catch (SQLException e) {
-				throw new CompletionException(e);
+	public void load() {
+		if (this.storage != null) {
+			this.storage.close();
+		}
+		try {
+			switch (this.discordWhitelist.config().storage().type()) {
+				case SQLITE -> this.storage = new SQLiteStorage(this.discordWhitelist);
+				case MARIADB -> this.storage = new MariaDBStorage(this.discordWhitelist);
 			}
-		}, this.executor);
+			this.storage.createTable();
+		} catch (SQLException e) {
+			this.discordWhitelist.logger().error("Error while loading storage", e);
+		}
 	}
 
 	public CompletableFuture<Data> findByMinecraftIdentifier(UUID minecraftIdentifier) {

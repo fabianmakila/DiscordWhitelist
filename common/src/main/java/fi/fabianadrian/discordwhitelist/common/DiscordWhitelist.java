@@ -22,9 +22,9 @@ import java.util.List;
 
 public final class DiscordWhitelist {
 	private final Platform platform;
-	private final DataManager dataManager;
 	private final ConfigManager configManager;
 	private final TranslationManager translationManager;
+	private final DataManager dataManager;
 	private DiscordBot discordBot;
 	private JDA6CommandManager<JDAInteraction> discordCommandManager;
 
@@ -49,10 +49,7 @@ public final class DiscordWhitelist {
 		this.translationManager.load();
 		this.translationManager.defaultLocale(config().defaultLocale());
 
-		this.dataManager.init().exceptionally(throwable -> {
-			logger().error("Failed to initialize storage", throwable);
-			return null;
-		});
+		this.dataManager.load();
 
 		registerDiscordCommands();
 

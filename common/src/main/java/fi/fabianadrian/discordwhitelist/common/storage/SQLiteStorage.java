@@ -1,10 +1,10 @@
-package fi.fabianadrian.discordwhitelist.common.storage.sqlite;
+package fi.fabianadrian.discordwhitelist.common.storage;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.data.Data;
 import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
-import fi.fabianadrian.discordwhitelist.common.storage.Storage;
+import org.sqlite.SQLiteDataSource;
 
 import java.nio.ByteBuffer;
 import java.sql.*;
@@ -49,15 +49,17 @@ public final class SQLiteStorage implements Storage {
 			FROM dw_data
 			WHERE discord_identifier = ?
 			""";
-	private final SQLiteConnectionFactory factory;
+	private final SQLiteDataSource source;
 
 	public SQLiteStorage(DiscordWhitelist discordWhitelist) {
-		this.factory = new SQLiteConnectionFactory(discordWhitelist.dataDirectory());
+		SQLiteDataSource source = new SQLiteDataSource();
+		source.setUrl("jdbc:sqlite:" + discordWhitelist.dataDirectory().resolve("database.db").toAbsolutePath());
+		this.source = source;
 	}
 
 	@Override
 	public void createTable() throws SQLException {
-		try (Connection connection = this.factory.connection()) {
+		try (Connection connection = this.source.getConnection()) {
 			Statement statement = connection.createStatement();
 			statement.execute(STATEMENT_CREATE_TABLE);
 		}
@@ -65,7 +67,7 @@ public final class SQLiteStorage implements Storage {
 
 	@Override
 	public Collection<Data> selectByDiscordIdentifier(long discordIdentifier) throws SQLException {
-		try (Connection connection = this.factory.connection()) {
+		try (Connection connection = this.source.getConnection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_SELECT_BY_DISCORD_IDENTIFIER);
 			statement.setString(1, String.valueOf(discordIdentifier));
 			ResultSet resultSet = statement.executeQuery();
@@ -89,7 +91,7 @@ public final class SQLiteStorage implements Storage {
 
 	@Override
 	public Data selectByMinecraftIdentifier(UUID minecraftIdentifier) throws SQLException {
-		try (Connection connection = this.factory.connection()) {
+		try (Connection connection = this.source.getConnection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_SELECT_BY_MINECRAFT_IDENTIFIER);
 			statement.setBytes(1, uuidToBytes(minecraftIdentifier));
 			ResultSet resultSet = statement.executeQuery();
@@ -116,7 +118,7 @@ public final class SQLiteStorage implements Storage {
 
 	@Override
 	public void upsert(Data data) throws SQLException {
-		try (Connection connection = this.factory.connection()) {
+		try (Connection connection = this.source.getConnection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_UPSERT);
 			statement.setBytes(1, uuidToBytes(data.minecraftProfile().identifier()));
 			statement.setString(2, data.minecraftProfile().username());
