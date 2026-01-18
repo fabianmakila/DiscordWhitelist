@@ -15,9 +15,9 @@ import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
 
-import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 
+//TODO Swap order check if minecraft account exists -> check if already linked that account -> check if user has reached limit
 public final class LinkCommand extends DiscordCommand {
 	private static final TranslatableComponent COMPONENT_BROADCAST = Component.translatable(
 			"discordwhitelist.command.discord.link.broadcast"
@@ -45,13 +45,12 @@ public final class LinkCommand extends DiscordCommand {
 
 		this.dataManager.findByDiscordIdentifier(user.getIdLong())
 				.thenCompose(collection -> {
-					if (!collection.isEmpty() && collection.size() >= super.discordWhitelist.config().profileLimit()) {
-						StringJoiner builder = new StringJoiner(", ");
-						collection.forEach(profile -> builder.add(profile.minecraftProfile().username()));
+					int profileLimit = super.discordWhitelist.config().profileLimit();
+					if (!collection.isEmpty() && collection.size() >= profileLimit) {
 						sendMessage(
 								context,
 								"discord.link.error.limit",
-								CaptionVariable.of("linked-minecraft-usernames", builder.toString())
+								CaptionVariable.of("limit", String.valueOf(profileLimit))
 						);
 						return CompletableFuture.completedFuture(null);
 					}
