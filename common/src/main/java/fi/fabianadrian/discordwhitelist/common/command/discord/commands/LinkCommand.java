@@ -9,6 +9,8 @@ import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslatableComponent;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
@@ -17,6 +19,9 @@ import java.util.StringJoiner;
 import java.util.concurrent.CompletableFuture;
 
 public final class LinkCommand extends DiscordCommand {
+	private static final TranslatableComponent COMPONENT_BROADCAST = Component.translatable(
+			"discordwhitelist.command.discord.link.broadcast"
+	);
 	private final DataManager dataManager;
 
 	public LinkCommand(DiscordWhitelist discordWhitelist) {
@@ -37,7 +42,6 @@ public final class LinkCommand extends DiscordCommand {
 		assert event != null;
 
 		User user = event.getUser();
-		MinecraftProfile minecraftProfile = context.get("minecraft-username");
 
 		this.dataManager.findByDiscordIdentifier(user.getIdLong())
 				.thenCompose(collection -> {
@@ -46,18 +50,20 @@ public final class LinkCommand extends DiscordCommand {
 						collection.forEach(profile -> builder.add(profile.minecraftProfile().username()));
 						sendMessage(
 								context,
-								"link.error.limit",
+								"discord.link.error.limit",
 								CaptionVariable.of("linked-minecraft-usernames", builder.toString())
 						);
 						return CompletableFuture.completedFuture(null);
 					}
+
+					MinecraftProfile minecraftProfile = context.get("minecraft-username");
 
 					return this.dataManager.findByMinecraftIdentifier(minecraftProfile.identifier())
 							.thenCompose(data -> {
 								if (data != null && data.discordProfile() != null) {
 									sendMessage(
 											context,
-											"link.error.other",
+											"discord.link.error.other",
 											CaptionVariable.of("discord-username", data.discordProfile().username()),
 											CaptionVariable.of("minecraft-username", minecraftProfile.username())
 									);
@@ -65,6 +71,7 @@ public final class LinkCommand extends DiscordCommand {
 								}
 								data = new Data(minecraftProfile);
 								data.discordProfile(new DiscordProfile(user));
+								String discordUsername = data.discordProfile().username();
 								return this.dataManager.save(data)
 										.thenRun(() -> {
 											sendMessage(
@@ -72,12 +79,17 @@ public final class LinkCommand extends DiscordCommand {
 													"link",
 													CaptionVariable.of("minecraft-username", minecraftProfile.username())
 											);
-											//TODO Broadcast
+											super.discordWhitelist.serverAudience().sendMessage(
+													COMPONENT_BROADCAST.arguments(
+															Component.text(discordUsername),
+															Component.text(minecraftProfile.username())
+													)
+											);
 										});
 							});
 				}).exceptionally(throwable -> {
 					super.discordWhitelist.logger().error("Couldn't link Discord account", throwable);
-					sendMessage(context, "link.error.unknown");
+					sendMessage(context, "discord.link.error.unknown");
 					return null;
 				});
 	}

@@ -3,6 +3,7 @@ package fi.fabianadrian.discordwhitelist.common;
 import fi.fabianadrian.discordwhitelist.common.command.AbstractCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCaptionProvider;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.LinkCommand;
+import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.ReloadCommand;
 import fi.fabianadrian.discordwhitelist.common.command.processor.DiscordWhitelistPreprocessor;
 import fi.fabianadrian.discordwhitelist.common.config.ConfigManager;
 import fi.fabianadrian.discordwhitelist.common.config.DiscordWhitelistConfig;
@@ -10,7 +11,9 @@ import fi.fabianadrian.discordwhitelist.common.data.DataManager;
 import fi.fabianadrian.discordwhitelist.common.discord.DiscordBot;
 import fi.fabianadrian.discordwhitelist.common.locale.TranslationManager;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
+import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.discord.jda6.JDA6CommandManager;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
 import org.incendo.cloud.discord.slash.DiscordSetting;
@@ -52,8 +55,9 @@ public final class DiscordWhitelist {
 		this.dataManager.load();
 
 		registerDiscordCommands();
-
 		this.discordBot = new DiscordBot(this);
+
+		registerMinecraftCommands();
 	}
 
 	public Path dataDirectory() {
@@ -76,8 +80,16 @@ public final class DiscordWhitelist {
 		return this.discordCommandManager;
 	}
 
+	public CommandManager<Audience> minecraftCommandManager() {
+		return this.platform.commandManager();
+	}
+
 	public DataManager storageManager() {
 		return this.dataManager;
+	}
+
+	public Audience serverAudience() {
+		return this.platform;
 	}
 
 	private void createDiscordCommandManager() {
@@ -100,6 +112,12 @@ public final class DiscordWhitelist {
 	private void registerDiscordCommands() {
 		List.of(
 				new LinkCommand(this)
+		).forEach(AbstractCommand::register);
+	}
+
+	private void registerMinecraftCommands() {
+		List.of(
+				new ReloadCommand(this)
 		).forEach(AbstractCommand::register);
 	}
 }

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
 
-public class DiscordLocaleExtractor implements LocaleExtractor<JDAInteraction> {
+public final class DiscordLocaleExtractor implements LocaleExtractor<JDAInteraction> {
 	private final DiscordWhitelist discordWhitelist;
 
 	public DiscordLocaleExtractor(DiscordWhitelist discordWhitelist) {

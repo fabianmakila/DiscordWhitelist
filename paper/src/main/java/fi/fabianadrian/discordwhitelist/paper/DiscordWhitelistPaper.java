@@ -6,8 +6,11 @@ import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPe
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.CraftHeadProfileResolver;
 import fi.fabianadrian.discordwhitelist.paper.profile.OnlineProfileResolver;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.incendo.cloud.paper.PaperCommandManager;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -44,5 +47,15 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 	@Override
 	public ChainedProfileResolver profileResolver() {
 		return this.profileResolver;
+	}
+
+	@Override
+	public PaperCommandManager<Audience> commandManager() {
+		return null; //TODO Implementation
+	}
+
+	@Override
+	public @NotNull Audience audience() {
+		return getServer();
 	}
 }

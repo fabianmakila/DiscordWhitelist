@@ -13,6 +13,7 @@ public final class LoginListener {
 	private static final TranslatableComponent COMPONENT_LOGIN_DENIED = Component.translatable(
 			"discordwhitelist.login.denied"
 	);
+	private static final String PERMISSION_BYPASS = "discordwhitelist.bypass";
 	private final DiscordWhitelistVelocity plugin;
 
 	public LoginListener(DiscordWhitelistVelocity plugin) {
@@ -22,6 +23,11 @@ public final class LoginListener {
 	@Subscribe
 	public void onJoin(LoginEvent event) {
 		Player player = event.getPlayer();
+
+		if (player.hasPermission(PERMISSION_BYPASS)) {
+			return;
+		}
+
 		if (this.plugin.discordWhitelist().storageManager().findByMinecraftIdentifier(player.getUniqueId()).join() != null) {
 			return;
 		}

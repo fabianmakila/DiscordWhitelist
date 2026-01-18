@@ -2,7 +2,6 @@ package fi.fabianadrian.discordwhitelist.common.command.discord;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.incendo.cloud.caption.Caption;
 import org.incendo.cloud.caption.CaptionProvider;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
@@ -18,7 +17,12 @@ public final class DiscordCaptionProvider implements CaptionProvider<JDAInteract
 	}
 
 	@Override
-	public @Nullable String provide(@NonNull Caption caption, @NotNull JDAInteraction recipient) {
-		return bundle.provide(Caption.of("discordwhitelist.command.discord." + caption.key()), recipient);
+	public @NotNull String provide(@NonNull Caption caption, @NotNull JDAInteraction recipient) {
+		String key = "discordwhitelist.command." + caption.key();
+		String provided = this.bundle.provide(Caption.of(key), recipient);
+		if (provided == null) {
+			return key;
+		}
+		return provided;
 	}
 }
