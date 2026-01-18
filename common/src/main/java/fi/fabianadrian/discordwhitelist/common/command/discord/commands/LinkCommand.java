@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.minimessage.translation.Argument;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
@@ -80,8 +81,8 @@ public final class LinkCommand extends DiscordCommand {
 											);
 											super.discordWhitelist.serverAudience().sendMessage(
 													COMPONENT_BROADCAST.arguments(
-															Component.text(discordUsername),
-															Component.text(minecraftProfile.username())
+															Argument.string("discord-username", discordUsername),
+															Argument.string("minecraft-username", minecraftProfile.username())
 													)
 											);
 										});
