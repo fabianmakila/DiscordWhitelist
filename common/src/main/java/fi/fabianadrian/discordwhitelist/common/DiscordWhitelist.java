@@ -13,6 +13,9 @@ import fi.fabianadrian.discordwhitelist.common.locale.TranslationManager;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.permission.PermissionChecker;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.util.TriState;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.discord.jda6.JDA6CommandManager;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
@@ -88,8 +91,13 @@ public final class DiscordWhitelist {
 		return this.dataManager;
 	}
 
-	public Audience serverAudience() {
-		return this.platform;
+	public void broadcast(String permission, Component component) {
+		Audience filtered = this.platform.filterAudience(audience -> audience.get(PermissionChecker.POINTER)
+				.orElseGet(
+						() -> PermissionChecker.always(TriState.FALSE)
+				).test(permission)
+		);
+		filtered.sendMessage(component);
 	}
 
 	private void createDiscordCommandManager() {
