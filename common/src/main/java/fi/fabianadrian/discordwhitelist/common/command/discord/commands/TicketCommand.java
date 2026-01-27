@@ -4,19 +4,17 @@ import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCommand;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
-import org.incendo.cloud.Command;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
 
 public final class TicketCommand extends DiscordCommand {
 	public TicketCommand(DiscordWhitelist discordWhitelist) {
-		super(discordWhitelist);
+		super(discordWhitelist, "ticket");
 	}
 
 	@Override
 	public void register() {
-		Command.Builder<JDAInteraction> builder = super.manager.commandBuilder("ticket").handler(this::handle);
-		super.manager.command(builder);
+		super.manager.command(super.builder.handler(this::handle));
 	}
 
 	private void handle(CommandContext<JDAInteraction> context) {

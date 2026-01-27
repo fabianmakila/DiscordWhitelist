@@ -25,16 +25,16 @@ public final class LinkCommand extends DiscordCommand {
 	private final DataManager dataManager;
 
 	public LinkCommand(DiscordWhitelist discordWhitelist) {
-		super(discordWhitelist);
+		super(discordWhitelist, "link");
 		this.dataManager = discordWhitelist.storageManager();
 	}
 
 	@Override
 	public void register() {
-		var builder = super.manager.commandBuilder("link")
+		super.manager.command(super.builder
 				.required("minecraft-username", MinecraftProfileParser.minecraftProfileParser())
-				.handler(this::handle);
-		super.manager.command(builder);
+				.handler(this::handle)
+		);
 	}
 
 	private void handle(CommandContext<JDAInteraction> context) {

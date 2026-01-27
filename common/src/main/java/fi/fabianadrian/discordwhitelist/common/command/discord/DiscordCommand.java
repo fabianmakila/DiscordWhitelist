@@ -3,6 +3,7 @@ package fi.fabianadrian.discordwhitelist.common.command.discord;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.AbstractCommand;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
+import org.incendo.cloud.Command;
 import org.incendo.cloud.caption.Caption;
 import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
@@ -11,10 +12,13 @@ import org.incendo.cloud.discord.jda6.JDAInteraction;
 
 public abstract class DiscordCommand extends AbstractCommand {
 	protected final JDA6CommandManager<JDAInteraction> manager;
+	protected final Command.Builder<JDAInteraction> builder;
 
-	public DiscordCommand(DiscordWhitelist discordWhitelist) {
+	public DiscordCommand(DiscordWhitelist discordWhitelist, String name) {
 		super(discordWhitelist);
 		this.manager = discordWhitelist.discordCommandManager();
+
+		this.builder = this.manager.commandBuilder(name);
 	}
 
 	protected void sendMessage(CommandContext<JDAInteraction> context, String key, CaptionVariable... variables) {
