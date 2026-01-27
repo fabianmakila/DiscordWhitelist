@@ -1,6 +1,7 @@
 package fi.fabianadrian.discordwhitelist.common.config;
 
 import fi.fabianadrian.discordwhitelist.common.config.section.StorageSection;
+import fi.fabianadrian.discordwhitelist.common.config.section.TicketsSection;
 import space.arim.dazzleconf.engine.Comments;
 import space.arim.dazzleconf.engine.liaison.SubSection;
 
@@ -23,4 +24,7 @@ public interface DiscordWhitelistConfig {
 
 	@SubSection
 	StorageSection storage();
+
+	@SubSection
+	TicketsSection tickets();
 }

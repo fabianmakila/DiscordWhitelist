@@ -3,6 +3,7 @@ package fi.fabianadrian.discordwhitelist.common;
 import fi.fabianadrian.discordwhitelist.common.command.AbstractCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCaptionProvider;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.LinkCommand;
+import fi.fabianadrian.discordwhitelist.common.command.discord.commands.TicketCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.ReloadCommand;
 import fi.fabianadrian.discordwhitelist.common.command.processor.DiscordWhitelistPreprocessor;
 import fi.fabianadrian.discordwhitelist.common.config.ConfigManager;
@@ -91,6 +92,10 @@ public final class DiscordWhitelist {
 		return this.dataManager;
 	}
 
+	public DiscordBot discordBot() {
+		return this.discordBot;
+	}
+
 	public void broadcast(String permission, Component component) {
 		Audience filtered = this.platform.filterAudience(audience -> audience.get(PermissionChecker.POINTER)
 				.orElseGet(
@@ -119,7 +124,8 @@ public final class DiscordWhitelist {
 
 	private void registerDiscordCommands() {
 		List.of(
-				new LinkCommand(this)
+				new LinkCommand(this),
+				new TicketCommand(this)
 		).forEach(AbstractCommand::register);
 	}
 
