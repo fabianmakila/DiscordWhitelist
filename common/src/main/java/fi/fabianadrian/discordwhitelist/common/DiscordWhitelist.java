@@ -102,7 +102,7 @@ public final class DiscordWhitelist {
 
 	private void createDiscordCommandManager() {
 		JDA6CommandManager<JDAInteraction> commandManager = new JDA6CommandManager<>(
-				ExecutionCoordinator.simpleCoordinator(),
+				ExecutionCoordinator.asyncCoordinator(),
 				JDAInteraction.InteractionMapper.identity()
 		);
 
