@@ -97,12 +97,13 @@ public final class DiscordWhitelist {
 	}
 
 	public void broadcast(String permission, Component component) {
-		Audience filtered = this.platform.filterAudience(audience -> audience.get(PermissionChecker.POINTER)
-				.orElseGet(
-						() -> PermissionChecker.always(TriState.FALSE)
-				).test(permission)
-		);
-		filtered.sendMessage(component);
+		this.platform.forEachAudience(audience -> {
+					var checker = audience.get(PermissionChecker.POINTER).orElseGet(() -> PermissionChecker.always(TriState.FALSE));
+					if (!checker.test(permission)) {
+						return;
+					}
+					audience.sendMessage(component);
+				});
 	}
 
 	private void createDiscordCommandManager() {

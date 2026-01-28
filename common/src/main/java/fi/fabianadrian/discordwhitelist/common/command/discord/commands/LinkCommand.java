@@ -84,7 +84,7 @@ public final class LinkCommand extends DiscordCommand {
 
 		sendMessage(
 				context,
-				"link",
+				"discord.link",
 				CaptionVariable.of("minecraft-username", minecraftProfile.username())
 		);
 		super.discordWhitelist.broadcast(
