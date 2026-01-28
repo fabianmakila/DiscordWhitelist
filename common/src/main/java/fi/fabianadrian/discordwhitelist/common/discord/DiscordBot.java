@@ -6,7 +6,6 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.PermissionOverride;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.Category;
 
@@ -32,20 +31,27 @@ public final class DiscordBot {
 				.build();
 	}
 
-	public CompletableFuture<PermissionOverride> createTicketChannel(User user) {
+	public CompletableFuture<TicketCreationResult> createTicketChannel(User user) {
 		Category ticketCategory = this.jda.getCategoryById(this.discordWhitelist.config().tickets().categoryIdentifier());
 		if (ticketCategory == null) {
-			return CompletableFuture.completedFuture(null);
+			return CompletableFuture.completedFuture(TicketCreationResult.MISSING_CATEGORY);
 		}
+
+		Guild guild = ticketCategory.getGuild();
+		Member member = guild.retrieveMember(user).complete();
+		if (member == null) {
+			return CompletableFuture.failedFuture(
+					new IllegalStateException("member is null")
+			);
+		}
+
 		return ticketCategory.createTextChannel(String.format("ticket-%s", toChannelName(user.getName()))).submit()
-				.thenCompose(channel -> {
-					Guild guild = channel.getGuild();
-					Member member = guild.getMember(user);
-					if (member == null) {
-						return CompletableFuture.completedFuture(null);
-					}
-					return channel.upsertPermissionOverride(member).setAllowed(Permission.VIEW_CHANNEL).submit();
-				});
+				.thenCompose(channel -> channel.upsertPermissionOverride(member)
+						.setAllowed(Permission.VIEW_CHANNEL)
+						.submit()
+						.thenCompose(asd -> CompletableFuture.completedFuture(
+								TicketCreationResult.SUCCESS
+						)));
 	}
 
 	private String toChannelName(String input) {

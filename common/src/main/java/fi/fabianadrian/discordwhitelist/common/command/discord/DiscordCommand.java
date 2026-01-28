@@ -9,6 +9,7 @@ import org.incendo.cloud.caption.CaptionVariable;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDA6CommandManager;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
+import org.incendo.cloud.discord.slash.CommandScope;
 
 public abstract class DiscordCommand extends AbstractCommand {
 	protected final JDA6CommandManager<JDAInteraction> manager;
@@ -18,7 +19,7 @@ public abstract class DiscordCommand extends AbstractCommand {
 		super(discordWhitelist);
 		this.manager = discordWhitelist.discordCommandManager();
 
-		this.builder = this.manager.commandBuilder(name);
+		this.builder = this.manager.commandBuilder(name).apply(CommandScope.guilds());
 	}
 
 	protected void sendMessage(CommandContext<JDAInteraction> context, String key, CaptionVariable... variables) {
