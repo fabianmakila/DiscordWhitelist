@@ -1,5 +1,6 @@
 package fi.fabianadrian.discordwhitelist.paper;
 
+import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.Platform;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPermsProfileResolver;
@@ -19,6 +20,12 @@ import java.util.List;
 
 public final class DiscordWhitelistPaper extends JavaPlugin implements Platform {
 	private ChainedProfileResolver profileResolver;
+	private DiscordWhitelist discordWhitelist;
+
+	@Override
+	public void onLoad() {
+		this.discordWhitelist = new DiscordWhitelist(this);
+	}
 
 	@Override
 	public void onEnable() {
@@ -32,6 +39,7 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 
 		resolvers.add(new CraftHeadProfileResolver());
 		this.profileResolver = new ChainedProfileResolver(getSLF4JLogger(), resolvers);
+		this.discordWhitelist.load();
 	}
 
 	@Override
@@ -57,5 +65,9 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 	@Override
 	public @NotNull Audience audience() {
 		return getServer();
+	}
+
+	public DiscordWhitelist discordWhitelist() {
+		return this.discordWhitelist;
 	}
 }

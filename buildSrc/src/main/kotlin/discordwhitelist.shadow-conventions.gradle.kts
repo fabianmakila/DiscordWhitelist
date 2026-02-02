@@ -11,5 +11,6 @@ tasks {
 		archiveBaseName.set(project.prefixedPluginName)
 		destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
 		archiveClassifier.set("")
+		duplicatesStrategy = DuplicatesStrategy.INCLUDE
 	}
 }

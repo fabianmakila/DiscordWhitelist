@@ -4,24 +4,21 @@ import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.data.Data;
 import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.sqlite.SQLiteDataSource;
 
 import java.nio.ByteBuffer;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 public final class SQLiteStorage implements Storage {
-	private static final String STATEMENT_CREATE_TABLE = """
-			CREATE TABLE IF NOT EXISTS dw_data (
-			minecraft_identifier BLOB PRIMARY KEY,
-			minecraft_username  TEXT,
-			discord_identifier TEXT,
-			discord_username TEXT
-			);
-			""";
 	private static final String STATEMENT_UPSERT = """
 			INSERT INTO dw_data (
 				minecraft_identifier,
@@ -50,19 +47,23 @@ public final class SQLiteStorage implements Storage {
 			WHERE discord_identifier = ?
 			""";
 	private final SQLiteDataSource source;
+	private final Flyway flyway;
 
 	public SQLiteStorage(DiscordWhitelist discordWhitelist) {
 		SQLiteDataSource source = new SQLiteDataSource();
 		source.setUrl("jdbc:sqlite:" + discordWhitelist.dataDirectory().resolve("database.db").toAbsolutePath());
 		this.source = source;
+
+		this.flyway = Flyway.configure()
+				.dataSource(this.source)
+				.locations("classpath:db/migration/sqlite")
+				.communityDBSupportEnabled(true)
+				.load();
 	}
 
 	@Override
-	public void createTable() throws SQLException {
-		try (Connection connection = this.source.getConnection()) {
-			Statement statement = connection.createStatement();
-			statement.execute(STATEMENT_CREATE_TABLE);
-		}
+	public void migrate() throws FlywayException {
+		this.flyway.migrate();
 	}
 
 	@Override

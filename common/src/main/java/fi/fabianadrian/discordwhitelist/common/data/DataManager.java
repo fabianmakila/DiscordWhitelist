@@ -31,7 +31,7 @@ public final class DataManager {
 				case SQLITE -> this.storage = new SQLiteStorage(this.discordWhitelist);
 				case MARIADB -> this.storage = new MariaDBStorage(this.discordWhitelist);
 			}
-			this.storage.createTable();
+			this.storage.migrate();
 		} catch (SQLException e) {
 			this.discordWhitelist.logger().error("Error while loading storage", e);
 		}
