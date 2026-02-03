@@ -31,6 +31,6 @@ dependencies {
         exclude(module="slf4j-api")
         exclude(group="org.jetbrains")
     }
-    implementation(libs.flyway.core)
     implementation(libs.flyway.mysql)
+    implementation(libs.flyway.core)
 }

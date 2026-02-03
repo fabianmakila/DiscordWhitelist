@@ -82,6 +82,7 @@ public final class MariaDBStorage implements Storage {
 		this.flyway = Flyway.configure(getClass().getClassLoader())
 				.dataSource(this.source)
 				.locations("classpath:db/migration/mariadb")
+				.communityDBSupportEnabled(true)
 				.load();
 	}
 

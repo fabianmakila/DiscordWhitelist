@@ -70,6 +70,7 @@ public final class SQLiteStorage implements Storage {
 
 	public SQLiteStorage(DiscordWhitelist discordWhitelist) {
 		SQLiteDataSource source = new SQLiteDataSource();
+		source.setEnforceForeignKeys(true);
 		source.setUrl("jdbc:sqlite:" + discordWhitelist.dataDirectory().resolve("database.db").toAbsolutePath());
 		this.source = source;
 

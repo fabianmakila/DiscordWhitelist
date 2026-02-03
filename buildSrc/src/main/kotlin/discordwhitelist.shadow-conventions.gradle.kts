@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.transformers.ServiceFileTransformer
+
 plugins {
 	id("discordwhitelist.java-conventions")
 	id("com.gradleup.shadow")
@@ -11,8 +13,9 @@ tasks {
 		archiveBaseName.set(project.prefixedPluginName)
 		destinationDirectory.set(rootProject.layout.buildDirectory.dir("libs"))
 		archiveClassifier.set("")
-		filesMatching("META-INF/services/**") {
-			duplicatesStrategy = DuplicatesStrategy.INCLUDE
+		duplicatesStrategy = DuplicatesStrategy.INCLUDE
+		transform(ServiceFileTransformer::class.java) {
+			include("META-INF/services/*")
 		}
 	}
 }
