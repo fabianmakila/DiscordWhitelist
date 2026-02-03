@@ -4,6 +4,7 @@ import fi.fabianadrian.discordwhitelist.common.command.AbstractCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCaptionProvider;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.LinkCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.TicketCommand;
+import fi.fabianadrian.discordwhitelist.common.command.discord.commands.UnlinkCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.ReloadCommand;
 import fi.fabianadrian.discordwhitelist.common.command.processor.DiscordWhitelistPreprocessor;
 import fi.fabianadrian.discordwhitelist.common.config.ConfigManager;
@@ -88,7 +89,7 @@ public final class DiscordWhitelist {
 		return this.platform.commandManager();
 	}
 
-	public DataManager storageManager() {
+	public DataManager dataManager() {
 		return this.dataManager;
 	}
 
@@ -126,7 +127,8 @@ public final class DiscordWhitelist {
 	private void registerDiscordCommands() {
 		List.of(
 				new LinkCommand(this),
-				new TicketCommand(this)
+				new TicketCommand(this),
+				new UnlinkCommand(this)
 		).forEach(AbstractCommand::register);
 	}
 

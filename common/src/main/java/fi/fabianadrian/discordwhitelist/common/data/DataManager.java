@@ -67,7 +67,7 @@ public final class DataManager {
 		});
 	}
 
-	CompletableFuture<Boolean> deleteByMinecraftIdentifier(UUID minecraftIdentifier) {
+	public CompletableFuture<Boolean> deleteByMinecraftIdentifier(UUID minecraftIdentifier) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				return this.storage.deleteByMinecraftIdentifier(minecraftIdentifier);
@@ -77,7 +77,7 @@ public final class DataManager {
 		});
 	}
 
-	CompletableFuture<Integer> deleteByDiscordIdentifier(long discordIdentifier) {
+	public CompletableFuture<Integer> deleteByDiscordIdentifier(long discordIdentifier) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
 				return this.storage.deleteByDiscordIdentifier(discordIdentifier);

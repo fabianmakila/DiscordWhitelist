@@ -28,7 +28,7 @@ public final class JoinListener implements Listener {
 			return;
 		}
 
-		if (this.plugin.discordWhitelist().storageManager().findByMinecraftIdentifier(player.getUniqueId()).join() != null) {
+		if (this.plugin.discordWhitelist().dataManager().findByMinecraftIdentifier(player.getUniqueId()).join() != null) {
 			return;
 		}
 

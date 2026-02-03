@@ -19,31 +19,50 @@ import java.util.List;
 import java.util.UUID;
 
 public final class SQLiteStorage implements Storage {
-	private static final String STATEMENT_UPSERT = """
-			INSERT INTO dw_data (
-				minecraft_identifier,
-				minecraft_username,
+	private static final String STATEMENT_UPSERT_DISCORD = """
+			INSERT INTO dw_discord_profiles (
 				discord_identifier,
 				discord_username
 			)
-			VALUES (?, ?, ?, ?)
-			ON CONFLICT(minecraft_identifier) DO UPDATE SET
-				minecraft_username = excluded.minecraft_username,
-				discord_identifier = excluded.discord_identifier,
+			VALUES (?, ?)
+			ON CONFLICT(discord_identifier) DO UPDATE SET
 				discord_username = excluded.discord_username
 			""";
+	private static final String STATEMENT_UPSERT_MINECRAFT = """
+			INSERT INTO dw_minecraft_profiles (
+				minecraft_identifier,
+				minecraft_username,
+				discord_identifier
+			)
+			VALUES (?, ?, ?)
+			ON CONFLICT(minecraft_identifier) DO UPDATE SET
+				minecraft_username = excluded.minecraft_username,
+				discord_identifier = excluded.discord_identifier
+			""";
 	private static final String STATEMENT_SELECT_BY_MINECRAFT_IDENTIFIER = """
-			SELECT minecraft_username,
-				discord_identifier,
-				discord_username
-			FROM dw_data
-			WHERE minecraft_identifier = ?
+			SELECT
+					m.minecraft_username,
+					m.discord_identifier,
+					d.discord_username
+				FROM dw_minecraft_profiles m
+				LEFT JOIN dw_discord_profiles d
+					ON m.discord_identifier = d.discord_identifier
+				WHERE m.minecraft_identifier = ?
+
 			""";
 	private static final String STATEMENT_SELECT_BY_DISCORD_IDENTIFIER = """
-			SELECT minecraft_identifier,
-				minecraft_username,
-				discord_username
-			FROM dw_data
+			SELECT
+					m.minecraft_identifier,
+					m.minecraft_username,
+					d.discord_username
+				FROM dw_minecraft_profiles m
+				LEFT JOIN dw_discord_profiles d
+					ON m.discord_identifier = d.discord_identifier
+				WHERE m.discord_identifier = ?
+
+			""";
+	private static final String STATEMENT_DELETE_BY_DISCORD_IDENTIFIER = """
+			DELETE FROM dw_discord_profiles
 			WHERE discord_identifier = ?
 			""";
 	private final SQLiteDataSource source;
@@ -54,7 +73,7 @@ public final class SQLiteStorage implements Storage {
 		source.setUrl("jdbc:sqlite:" + discordWhitelist.dataDirectory().resolve("database.db").toAbsolutePath());
 		this.source = source;
 
-		this.flyway = Flyway.configure()
+		this.flyway = Flyway.configure(getClass().getClassLoader())
 				.dataSource(this.source)
 				.locations("classpath:db/migration/sqlite")
 				.communityDBSupportEnabled(true)
@@ -71,19 +90,20 @@ public final class SQLiteStorage implements Storage {
 		try (Connection connection = this.source.getConnection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_SELECT_BY_DISCORD_IDENTIFIER);
 			statement.setString(1, String.valueOf(discordIdentifier));
-			ResultSet resultSet = statement.executeQuery();
 
 			List<Data> dataList = new ArrayList<>();
-			while (resultSet.next()) {
-				UUID minecraftIdentifier = bytesToUUID(resultSet.getBytes("minecraft_identifier"));
+			try (ResultSet resultSet = statement.executeQuery()) {
+				while (resultSet.next()) {
+					UUID minecraftIdentifier = bytesToUUID(resultSet.getBytes("minecraft_identifier"));
 
-				String minecraftUsername = resultSet.getString("minecraft_username");
-				MinecraftProfile minecraftProfile = new MinecraftProfile(minecraftIdentifier, minecraftUsername);
-				Data data = new Data(minecraftProfile);
+					String minecraftUsername = resultSet.getString("minecraft_username");
+					MinecraftProfile minecraftProfile = new MinecraftProfile(minecraftIdentifier, minecraftUsername);
+					Data data = new Data(minecraftProfile);
 
-				String discordUsername = resultSet.getString("discord_username");
-				data.discordProfile(new DiscordProfile(discordIdentifier, discordUsername));
-				dataList.add(data);
+					String discordUsername = resultSet.getString("discord_username");
+					data.discordProfile(new DiscordProfile(discordIdentifier, discordUsername));
+					dataList.add(data);
+				}
 			}
 
 			return dataList;
@@ -95,37 +115,51 @@ public final class SQLiteStorage implements Storage {
 		try (Connection connection = this.source.getConnection()) {
 			PreparedStatement statement = connection.prepareStatement(STATEMENT_SELECT_BY_MINECRAFT_IDENTIFIER);
 			statement.setBytes(1, uuidToBytes(minecraftIdentifier));
-			ResultSet resultSet = statement.executeQuery();
 
-			if (!resultSet.next()) {
-				return null;
-			}
+			try (ResultSet resultSet = statement.executeQuery()) {
+				if (!resultSet.next()) {
+					return null;
+				}
 
-			String minecraftUsername = resultSet.getString("minecraft_username");
-			MinecraftProfile minecraftProfile = new MinecraftProfile(minecraftIdentifier, minecraftUsername);
-			Data data = new Data(minecraftProfile);
+				String minecraftUsername = resultSet.getString("minecraft_username");
+				MinecraftProfile minecraftProfile = new MinecraftProfile(minecraftIdentifier, minecraftUsername);
+				Data data = new Data(minecraftProfile);
 
-			String discordIdentifierAsString = resultSet.getString("discord_identifier");
-			if (discordIdentifierAsString == null) {
+				String discordIdentifierAsString = resultSet.getString("discord_identifier");
+				if (discordIdentifierAsString == null) {
+					return data;
+				}
+
+				long discordIdentifier = Long.parseLong(discordIdentifierAsString);
+				String discordUsername = resultSet.getString("discord_username");
+				data.discordProfile(new DiscordProfile(discordIdentifier, discordUsername));
 				return data;
 			}
-
-			long discordIdentifier = Long.parseLong(discordIdentifierAsString);
-			String discordUsername = resultSet.getString("discord_username");
-			data.discordProfile(new DiscordProfile(discordIdentifier, discordUsername));
-			return data;
 		}
 	}
 
 	@Override
 	public void upsert(Data data) throws SQLException {
 		try (Connection connection = this.source.getConnection()) {
-			PreparedStatement statement = connection.prepareStatement(STATEMENT_UPSERT);
-			statement.setBytes(1, uuidToBytes(data.minecraftProfile().identifier()));
-			statement.setString(2, data.minecraftProfile().username());
-			statement.setString(3, data.discordProfile().identifier().toString());
-			statement.setString(4, data.discordProfile().username());
-			statement.executeUpdate();
+			connection.setAutoCommit(false);
+
+			PreparedStatement minecraftStatement = connection.prepareStatement(STATEMENT_UPSERT_MINECRAFT);
+			minecraftStatement.setBytes(1, uuidToBytes(data.minecraftProfile().identifier()));
+			minecraftStatement.setString(2, data.minecraftProfile().username());
+
+			if (data.discordProfile() != null) {
+				PreparedStatement discordStatement = connection.prepareStatement(STATEMENT_UPSERT_DISCORD);
+				discordStatement.setString(1, data.discordProfile().identifier().toString());
+				discordStatement.setString(2, data.discordProfile().username());
+				discordStatement.executeUpdate();
+
+				minecraftStatement.setString(3, data.discordProfile().identifier().toString());
+			} else {
+				minecraftStatement.setString(3, null);
+			}
+
+			minecraftStatement.executeUpdate();
+			connection.commit();
 		}
 	}
 
@@ -135,10 +169,13 @@ public final class SQLiteStorage implements Storage {
 		return false;
 	}
 
-	//TODO Implementation
 	@Override
 	public int deleteByDiscordIdentifier(long discordIdentifier) throws SQLException {
-		return 0;
+		try (Connection connection = this.source.getConnection()) {
+			PreparedStatement statement = connection.prepareStatement(STATEMENT_DELETE_BY_DISCORD_IDENTIFIER);
+			statement.setString(1, String.valueOf(discordIdentifier));
+			return statement.executeUpdate();
+		}
 	}
 
 	private byte[] uuidToBytes(UUID uuid) {

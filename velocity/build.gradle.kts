@@ -6,6 +6,7 @@ dependencies {
 	compileOnly(libs.platform.velocity)
 	implementation(project(":common"))
 	implementation(libs.storage.sqlite)
+	implementation(libs.storage.mariadb)
 	implementation(libs.cloud.velocity)
 }
 

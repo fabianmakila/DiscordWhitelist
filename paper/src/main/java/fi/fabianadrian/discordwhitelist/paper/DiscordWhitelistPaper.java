@@ -6,10 +6,14 @@ import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.Chaine
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPermsProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.CraftHeadProfileResolver;
+import fi.fabianadrian.discordwhitelist.paper.command.CommandSourceStackWrapper;
 import fi.fabianadrian.discordwhitelist.paper.profile.OnlineProfileResolver;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.audience.Audience;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.incendo.cloud.SenderMapper;
+import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.paper.PaperCommandManager;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -21,6 +25,7 @@ import java.util.List;
 public final class DiscordWhitelistPaper extends JavaPlugin implements Platform {
 	private ChainedProfileResolver profileResolver;
 	private DiscordWhitelist discordWhitelist;
+	private PaperCommandManager<Audience> commandManager;
 
 	@Override
 	public void onLoad() {
@@ -39,6 +44,9 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 
 		resolvers.add(new CraftHeadProfileResolver());
 		this.profileResolver = new ChainedProfileResolver(getSLF4JLogger(), resolvers);
+
+		createCommandManager();
+
 		this.discordWhitelist.load();
 	}
 
@@ -59,7 +67,7 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 
 	@Override
 	public PaperCommandManager<Audience> commandManager() {
-		return null; //TODO Implementation
+		return this.commandManager;
 	}
 
 	@Override
@@ -69,5 +77,17 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 
 	public DiscordWhitelist discordWhitelist() {
 		return this.discordWhitelist;
+	}
+
+	private void createCommandManager() {
+		SenderMapper<CommandSourceStack, Audience> mapper = SenderMapper.create(
+				CommandSourceStackWrapper::new,
+				audience -> ((CommandSourceStackWrapper) audience).stack()
+		);
+		PaperCommandManager<Audience> manager = PaperCommandManager.builder(mapper)
+				.executionCoordinator(ExecutionCoordinator.simpleCoordinator())
+				.buildOnEnable(this);
+
+		this.commandManager = manager;
 	}
 }

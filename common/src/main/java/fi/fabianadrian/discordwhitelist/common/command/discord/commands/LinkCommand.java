@@ -26,7 +26,7 @@ public final class LinkCommand extends DiscordCommand {
 
 	public LinkCommand(DiscordWhitelist discordWhitelist) {
 		super(discordWhitelist, "link");
-		this.dataManager = discordWhitelist.storageManager();
+		this.dataManager = discordWhitelist.dataManager();
 	}
 
 	@Override
