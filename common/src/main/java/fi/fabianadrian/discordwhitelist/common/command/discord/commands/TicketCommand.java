@@ -3,7 +3,7 @@ package fi.fabianadrian.discordwhitelist.common.command.discord.commands;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCommand;
 import fi.fabianadrian.discordwhitelist.common.discord.TicketCreationResult;
-import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
@@ -25,8 +25,12 @@ public final class TicketCommand extends DiscordCommand {
 			return;
 		}
 
-		User user = event.getUser();
-		this.discordWhitelist.discordBot().createTicketChannel(user)
+		Member member = event.getMember();
+		if (member == null) {
+			return;
+		}
+
+		this.discordWhitelist.discordBot().ticketFactory().create(member)
 				.thenAccept(result -> {
 					if (result == TicketCreationResult.MISSING_CATEGORY) {
 						sendMessage(context, "discord.ticket.missing-category");
