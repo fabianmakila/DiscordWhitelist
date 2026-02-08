@@ -15,7 +15,7 @@ import fi.fabianadrian.discordwhitelist.common.Platform;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPermsProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.CraftHeadProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.PlayerDBProfileResolver;
 import fi.fabianadrian.discordwhitelist.velocity.listener.LoginListener;
 import fi.fabianadrian.discordwhitelist.velocity.profile.OnlineProfileResolver;
 import net.kyori.adventure.audience.Audience;
@@ -60,7 +60,7 @@ public final class DiscordWhitelistVelocity implements Platform {
 			resolvers.add(new LuckPermsProfileResolver());
 		}
 
-		resolvers.add(new CraftHeadProfileResolver());
+		resolvers.add(new PlayerDBProfileResolver());
 		this.profileResolver = new ChainedProfileResolver(this.logger, resolvers);
 
 		this.discordWhitelist.load();

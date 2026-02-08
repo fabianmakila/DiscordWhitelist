@@ -5,7 +5,7 @@ import fi.fabianadrian.discordwhitelist.common.Platform;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPermsProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.CraftHeadProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.PlayerDBProfileResolver;
 import fi.fabianadrian.discordwhitelist.paper.command.CommandSourceStackWrapper;
 import fi.fabianadrian.discordwhitelist.paper.profile.OnlineProfileResolver;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
@@ -42,7 +42,7 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 			resolvers.add(new LuckPermsProfileResolver());
 		}
 
-		resolvers.add(new CraftHeadProfileResolver());
+		resolvers.add(new PlayerDBProfileResolver());
 		this.profileResolver = new ChainedProfileResolver(getSLF4JLogger(), resolvers);
 
 		createCommandManager();

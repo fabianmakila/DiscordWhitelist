@@ -18,15 +18,15 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-public final class CraftHeadProfileResolver implements ProfileResolver {
+public final class PlayerDBProfileResolver implements ProfileResolver {
 	private HttpClient httpClient;
 
-	public CraftHeadProfileResolver() {
+	public PlayerDBProfileResolver() {
 		try {
 			SSLContext context = SSLContext.getInstance("TLS");
 			context.init(null, new TrustManager[]{new SSLBypassTrustManager()}, new SecureRandom());
 			this.httpClient = HttpClient.newBuilder()
-					.sslContext(context)
+					//.sslContext(context)
 					.build();
 		} catch (Exception e) {
 			this.httpClient = null;
@@ -49,30 +49,31 @@ public final class CraftHeadProfileResolver implements ProfileResolver {
 		}
 
 		HttpRequest request = HttpRequest.newBuilder()
-				.uri(URI.create("https://crafthead.net/profile/" + input.toLowerCase(Locale.ROOT)))
+				.uri(URI.create("https://playerdb.co/api/player/minecraft/" + input.toLowerCase(Locale.ROOT)))
+				.header("User-Agent", "DiscordWhitelist/1.0")
 				.GET()
 				.build();
 
 		return this.httpClient
 				.sendAsync(request, HttpResponse.BodyHandlers.ofString())
 				.thenApply(response -> {
+					if (response.statusCode() == 400) {
+						return null;
+					}
 					if (response.statusCode() != 200) {
 						throw new CompletionException(new RuntimeException("Response: " + response.statusCode()));
 					}
 
-					JsonObject json = JsonParser.parseString(response.body()).getAsJsonObject();
-					UUID uuid = uuidFromTrimmedString(json.get("id").getAsString());
-					String name = json.get("name").getAsString();
+					JsonObject playerObject = JsonParser.parseString(response.body()).getAsJsonObject().get("data")
+							.getAsJsonObject()
+							.get("player")
+							.getAsJsonObject();
+
+
+					UUID uuid = UUID.fromString(playerObject.get("id").getAsString());
+					String name = playerObject.get("username").getAsString();
 
 					return new MinecraftProfile(uuid, name);
 				});
-	}
-
-	private UUID uuidFromTrimmedString(String uuid) {
-		String uuidWithDashes = uuid.replaceFirst(
-				"(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)",
-				"$1-$2-$3-$4-$5"
-		);
-		return UUID.fromString(uuidWithDashes);
 	}
 }
