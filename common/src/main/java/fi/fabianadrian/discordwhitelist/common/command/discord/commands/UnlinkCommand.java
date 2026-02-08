@@ -3,12 +3,10 @@ package fi.fabianadrian.discordwhitelist.common.command.discord.commands;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCommand;
 import fi.fabianadrian.discordwhitelist.common.data.DataManager;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
 import org.incendo.cloud.context.CommandContext;
 import org.incendo.cloud.discord.jda6.JDAInteraction;
 import org.incendo.cloud.discord.jda6.JDAParser;
-import org.incendo.cloud.discord.slash.DiscordPermission;
 
 public final class UnlinkCommand extends DiscordCommand {
 	private final DataManager dataManager;
@@ -21,7 +19,6 @@ public final class UnlinkCommand extends DiscordCommand {
 	@Override
 	public void register() {
 		var builder = super.builder
-				.permission(DiscordPermission.of(Permission.ADMINISTRATOR.getRawValue()))
 				.required("discord-username", JDAParser.userParser())
 				.handler(this::handle);
 
