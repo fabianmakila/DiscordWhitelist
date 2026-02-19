@@ -5,6 +5,7 @@ import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCaptionPro
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.LinkCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.TicketCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.UnlinkCommand;
+import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.LookupCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.ReloadCommand;
 import fi.fabianadrian.discordwhitelist.common.command.processor.DiscordWhitelistPreprocessor;
 import fi.fabianadrian.discordwhitelist.common.config.ConfigManager;
@@ -99,12 +100,12 @@ public final class DiscordWhitelist {
 
 	public void broadcast(String permission, Component component) {
 		this.platform.forEachAudience(audience -> {
-					var checker = audience.get(PermissionChecker.POINTER).orElseGet(() -> PermissionChecker.always(TriState.FALSE));
-					if (!checker.test(permission)) {
-						return;
-					}
-					audience.sendMessage(component);
-				});
+			var checker = audience.get(PermissionChecker.POINTER).orElseGet(() -> PermissionChecker.always(TriState.FALSE));
+			if (!checker.test(permission)) {
+				return;
+			}
+			audience.sendMessage(component);
+		});
 	}
 
 	private void createDiscordCommandManager() {
@@ -134,7 +135,8 @@ public final class DiscordWhitelist {
 
 	private void registerMinecraftCommands() {
 		List.of(
-				new ReloadCommand(this)
+				new ReloadCommand(this),
+				new LookupCommand(this)
 		).forEach(AbstractCommand::register);
 	}
 }
