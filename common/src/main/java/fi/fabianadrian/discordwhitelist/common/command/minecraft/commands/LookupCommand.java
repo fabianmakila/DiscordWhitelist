@@ -2,14 +2,20 @@ package fi.fabianadrian.discordwhitelist.common.command.minecraft.commands;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.MinecraftCommand;
+import fi.fabianadrian.discordwhitelist.common.command.parser.MinecraftProfileParser;
 import fi.fabianadrian.discordwhitelist.common.data.Data;
+import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.parser.ArgumentParser;
+import org.incendo.cloud.parser.standard.LongParser;
+import org.incendo.cloud.parser.standard.StringParser;
 import org.incendo.cloud.parser.standard.UUIDParser;
+import org.incendo.cloud.type.Either;
 
 import java.util.UUID;
 
@@ -24,16 +30,27 @@ public final class LookupCommand extends MinecraftCommand {
 	public void register() {
 		Command.Builder<Audience> builder = super.builder().permission(PERMISSION);
 
-		Command.Builder<Audience> minecraftBuilder = builder.literal("minecraft");
-		super.manager.command(minecraftBuilder
-				.literal("identifier")
-				.required("identifier", UUIDParser.uuidParser())
-				.handler(this::handleMinecraftIdentifier)
+		super.manager.command(builder
+				.literal("minecraft")
+				.required("identifier|username", ArgumentParser.firstOf(UUIDParser.uuidParser(), MinecraftProfileParser.minecraftProfileParser()))
+				.handler(this::handleMinecraft)
+		);
+
+		super.manager.command(builder
+				.literal("discord")
+				.required("identifier|username", ArgumentParser.firstOf(LongParser.longParser(0), StringParser.stringParser())) //TODO Maybe add DiscordProfileParser?
+				.handler(this::handleDiscord)
 		);
 	}
 
-	private void handleMinecraftIdentifier(CommandContext<Audience> context) {
-		UUID uuid = context.get("identifier");
+	private void handleMinecraft(CommandContext<Audience> context) {
+		Either<UUID, MinecraftProfile> either = context.get("identifier|username");
+		UUID uuid;
+		if (either.primary().isPresent()) {
+			uuid = either.primary().get();
+		} else {
+			uuid = either.fallback().get().identifier();
+		}
 		super.discordWhitelist.dataManager().findByMinecraftIdentifier(uuid).thenAccept(data -> {
 			if (data == null) {
 				//TODO Message
@@ -43,16 +60,8 @@ public final class LookupCommand extends MinecraftCommand {
 		});
 	}
 
-	private void handleMinecraftUsername(CommandContext<Audience> context) {
-
-	}
-
-	private void handleDiscordIdentifier(CommandContext<Audience> context) {
-
-	}
-
-	private void handleDiscordUsername(CommandContext<Audience> context) {
-
+	private void handleDiscord(CommandContext<Audience> context) {
+		//TODO Implementation
 	}
 
 	private Component dataToComponent(Data data) {
