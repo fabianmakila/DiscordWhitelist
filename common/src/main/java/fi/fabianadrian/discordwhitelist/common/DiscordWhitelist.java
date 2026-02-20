@@ -63,6 +63,7 @@ public final class DiscordWhitelist {
 		registerDiscordCommands();
 		this.discordBot = new DiscordBot(this);
 
+		setupMinecraftCommandManager();
 		registerMinecraftCommands();
 	}
 
@@ -123,6 +124,10 @@ public final class DiscordWhitelist {
 		commandManager.registerCommandPreProcessor(new DiscordWhitelistPreprocessor<>(this));
 
 		this.discordCommandManager = commandManager;
+	}
+
+	private void setupMinecraftCommandManager() {
+		minecraftCommandManager().registerCommandPreProcessor(new DiscordWhitelistPreprocessor<>(this));
 	}
 
 	private void registerDiscordCommands() {
