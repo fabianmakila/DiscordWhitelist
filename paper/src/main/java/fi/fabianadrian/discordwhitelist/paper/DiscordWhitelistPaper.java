@@ -7,6 +7,7 @@ import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPe
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.PlayerDBProfileResolver;
 import fi.fabianadrian.discordwhitelist.paper.command.CommandSourceStackWrapper;
+import fi.fabianadrian.discordwhitelist.paper.listener.JoinListener;
 import fi.fabianadrian.discordwhitelist.paper.profile.OnlineProfileResolver;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.audience.Audience;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +49,12 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 
 		createCommandManager();
 
-		this.discordWhitelist.load();
+		try {
+			this.discordWhitelist.load();
+		} catch (SQLException ignored) {
+		}
+
+		registerListeners();
 	}
 
 	@Override
@@ -89,5 +96,12 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 				.buildOnEnable(this);
 
 		this.commandManager = manager;
+	}
+
+	private void registerListeners() {
+		PluginManager manager = getServer().getPluginManager();
+		List.of(
+				new JoinListener(this)
+		).forEach(listener -> manager.registerEvents(listener, this));
 	}
 }

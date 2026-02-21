@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,7 +64,10 @@ public final class DiscordWhitelistVelocity implements Platform {
 		resolvers.add(new PlayerDBProfileResolver());
 		this.profileResolver = new ChainedProfileResolver(this.logger, resolvers);
 
-		this.discordWhitelist.load();
+		try {
+			this.discordWhitelist.load();
+		} catch (SQLException ignored) {
+		}
 
 		registerListeners();
 	}

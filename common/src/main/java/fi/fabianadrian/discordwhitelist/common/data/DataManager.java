@@ -4,6 +4,7 @@ import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.storage.MariaDBStorage;
 import fi.fabianadrian.discordwhitelist.common.storage.SQLiteStorage;
 import fi.fabianadrian.discordwhitelist.common.storage.Storage;
+import org.flywaydb.core.api.FlywayException;
 
 import java.sql.SQLException;
 import java.util.Collection;
@@ -22,7 +23,7 @@ public final class DataManager {
 		this.discordWhitelist = discordWhitelist;
 	}
 
-	public void load() {
+	public void load() throws SQLException {
 		if (this.storage != null) {
 			this.storage.close();
 		}
@@ -32,8 +33,9 @@ public final class DataManager {
 				case MARIADB -> this.storage = new MariaDBStorage(this.discordWhitelist);
 			}
 			this.storage.migrate();
-		} catch (SQLException e) {
-			this.discordWhitelist.logger().error("Error while loading storage", e);
+		} catch (SQLException | FlywayException e) {
+			this.discordWhitelist.logger().error("Error loading storage", e);
+			throw e;
 		}
 	}
 
@@ -42,9 +44,10 @@ public final class DataManager {
 			try {
 				return this.storage.selectByMinecraftIdentifier(minecraftIdentifier);
 			} catch (SQLException e) {
+				this.discordWhitelist.logger().error("Couldn't find data", e);
 				throw new CompletionException(e);
 			}
-		});
+		}, this.executor);
 	}
 
 	public CompletableFuture<Collection<Data>> findByDiscordIdentifier(long discordIdentifier) {
@@ -52,9 +55,10 @@ public final class DataManager {
 			try {
 				return this.storage.selectByDiscordIdentifier(discordIdentifier);
 			} catch (SQLException e) {
+				this.discordWhitelist.logger().error("Couldn't find data", e);
 				throw new CompletionException(e);
 			}
-		});
+		}, this.executor);
 	}
 
 	public CompletableFuture<Void> save(Data data) {
@@ -62,9 +66,10 @@ public final class DataManager {
 			try {
 				this.storage.upsert(data);
 			} catch (SQLException e) {
+				this.discordWhitelist.logger().error("Couldn't save data", e);
 				throw new CompletionException(e);
 			}
-		});
+		}, this.executor);
 	}
 
 	public CompletableFuture<Boolean> deleteByMinecraftIdentifier(UUID minecraftIdentifier) {
@@ -72,9 +77,10 @@ public final class DataManager {
 			try {
 				return this.storage.deleteByMinecraftIdentifier(minecraftIdentifier);
 			} catch (SQLException e) {
+				this.discordWhitelist.logger().error("Couldn't delete data", e);
 				throw new CompletionException(e);
 			}
-		});
+		}, this.executor);
 	}
 
 	public CompletableFuture<Integer> deleteByDiscordIdentifier(long discordIdentifier) {
@@ -82,8 +88,9 @@ public final class DataManager {
 			try {
 				return this.storage.deleteByDiscordIdentifier(discordIdentifier);
 			} catch (SQLException e) {
+				this.discordWhitelist.logger().error("Couldn't delete data", e);
 				throw new CompletionException(e);
 			}
-		});
+		}, this.executor);
 	}
 }

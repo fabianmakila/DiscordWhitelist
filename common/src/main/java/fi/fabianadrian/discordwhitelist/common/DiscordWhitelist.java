@@ -27,6 +27,7 @@ import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.List;
 
 public final class DiscordWhitelist {
@@ -52,7 +53,7 @@ public final class DiscordWhitelist {
 		createDiscordCommandManager();
 	}
 
-	public void load() {
+	public void load() throws SQLException {
 		this.configManager.load();
 
 		this.translationManager.load();
