@@ -13,6 +13,7 @@ configurations {
 dependencies {
     compileOnly(libs.adventure)
     compileOnly(libs.adventure.text.minimessage)
+    compileOnly(libs.caffeine)
     compileOnly(libs.gson)
     compileOnly(libs.luckperms)
     compileOnly(libs.slf4j)

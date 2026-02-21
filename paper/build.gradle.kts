@@ -8,6 +8,7 @@ dependencies {
 	compileOnly(libs.platform.paper)
 	implementation(project(":common"))
 	implementation(libs.cloud.paper)
+	implementation(libs.caffeine)
 }
 
 paperPluginYaml {

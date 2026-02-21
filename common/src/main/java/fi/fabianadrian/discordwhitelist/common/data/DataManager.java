@@ -1,12 +1,16 @@
 package fi.fabianadrian.discordwhitelist.common.data;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.storage.MariaDBStorage;
 import fi.fabianadrian.discordwhitelist.common.storage.SQLiteStorage;
 import fi.fabianadrian.discordwhitelist.common.storage.Storage;
 import org.flywaydb.core.api.FlywayException;
 
+import java.security.Key;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -18,6 +22,10 @@ public final class DataManager {
 	private final Executor executor = Executors.newSingleThreadExecutor();
 	private final DiscordWhitelist discordWhitelist;
 	private Storage storage;
+	private final Cache<UUID, Data> cache = Caffeine.newBuilder()
+			.maximumSize(1000)
+			.expireAfterWrite(Duration.ofSeconds(5))
+			.build();
 
 	public DataManager(DiscordWhitelist discordWhitelist) {
 		this.discordWhitelist = discordWhitelist;
@@ -40,14 +48,14 @@ public final class DataManager {
 	}
 
 	public CompletableFuture<Data> findByMinecraftIdentifier(UUID minecraftIdentifier) {
-		return CompletableFuture.supplyAsync(() -> {
+		return CompletableFuture.supplyAsync(() -> this.cache.get(minecraftIdentifier, uuid -> {
 			try {
-				return this.storage.selectByMinecraftIdentifier(minecraftIdentifier);
+				return this.storage.selectByMinecraftIdentifier(uuid);
 			} catch (SQLException e) {
 				this.discordWhitelist.logger().error("Couldn't find data", e);
 				throw new CompletionException(e);
 			}
-		}, this.executor);
+		}), this.executor);
 	}
 
 	public CompletableFuture<Collection<Data>> findByDiscordIdentifier(long discordIdentifier) {
