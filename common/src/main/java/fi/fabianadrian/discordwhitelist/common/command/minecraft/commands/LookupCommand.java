@@ -4,7 +4,7 @@ import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.MinecraftCommand;
 import fi.fabianadrian.discordwhitelist.common.command.parser.MinecraftProfileParser;
 import fi.fabianadrian.discordwhitelist.common.data.Data;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;

@@ -1,8 +1,8 @@
 package fi.fabianadrian.discordwhitelist.velocity.profile;
 
 import com.velocitypowered.api.proxy.ProxyServer;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;

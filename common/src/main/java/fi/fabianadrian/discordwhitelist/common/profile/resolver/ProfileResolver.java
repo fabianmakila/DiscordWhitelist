@@ -1,6 +1,6 @@
-package fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver;
+package fi.fabianadrian.discordwhitelist.common.profile.resolver;
 
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;

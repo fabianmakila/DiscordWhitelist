@@ -2,10 +2,7 @@ package fi.fabianadrian.discordwhitelist.paper;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.Platform;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPermsProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.PlayerDBProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import fi.fabianadrian.discordwhitelist.paper.command.CommandSourceStackWrapper;
 import fi.fabianadrian.discordwhitelist.paper.listener.JoinListener;
 import fi.fabianadrian.discordwhitelist.paper.profile.OnlineProfileResolver;
@@ -21,13 +18,12 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class DiscordWhitelistPaper extends JavaPlugin implements Platform {
-	private ChainedProfileResolver profileResolver;
 	private DiscordWhitelist discordWhitelist;
 	private PaperCommandManager<Audience> commandManager;
+	private ProfileResolver onlineProfileResolver;
 
 	@Override
 	public void onLoad() {
@@ -36,24 +32,12 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 
 	@Override
 	public void onEnable() {
-		List<ProfileResolver> resolvers = new ArrayList<>();
-		resolvers.add(new OnlineProfileResolver(getServer()));
-
-		PluginManager manager = getServer().getPluginManager();
-		if (manager.isPluginEnabled("LuckPerms")) {
-			resolvers.add(new LuckPermsProfileResolver());
-		}
-
-		resolvers.add(new PlayerDBProfileResolver());
-		this.profileResolver = new ChainedProfileResolver(getSLF4JLogger(), resolvers);
-
+		this.onlineProfileResolver = new OnlineProfileResolver(getServer());
 		createCommandManager();
-
 		try {
 			this.discordWhitelist.load();
 		} catch (SQLException ignored) {
 		}
-
 		registerListeners();
 	}
 
@@ -68,8 +52,8 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 	}
 
 	@Override
-	public ChainedProfileResolver profileResolver() {
-		return this.profileResolver;
+	public ProfileResolver onlineProfileResolver() {
+		return this.onlineProfileResolver;
 	}
 
 	@Override

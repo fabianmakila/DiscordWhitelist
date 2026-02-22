@@ -1,6 +1,5 @@
-package fi.fabianadrian.discordwhitelist.common.profile.minecraft;
+package fi.fabianadrian.discordwhitelist.common.profile;
 
-import fi.fabianadrian.discordwhitelist.common.profile.Profile;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;

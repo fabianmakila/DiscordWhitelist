@@ -1,8 +1,8 @@
-package fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver;
+package fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft;
 
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
 
 import java.util.List;
 import java.util.UUID;
@@ -10,16 +10,14 @@ import java.util.concurrent.CompletableFuture;
 
 public final class ChainedProfileResolver implements ProfileResolver {
 	private final List<ProfileResolver> resolvers;
-	private final Logger logger;
 
-	public ChainedProfileResolver(Logger logger, List<ProfileResolver> resolvers) {
-		this.logger = logger;
+	public ChainedProfileResolver(List<ProfileResolver> resolvers) {
 		this.resolvers = resolvers;
 	}
 
 	@Override
 	public CompletableFuture<@Nullable MinecraftProfile> resolve(UUID identifier) {
-		CompletableFuture<@Nullable MinecraftProfile> future = CompletableFuture.completedFuture(null);
+		CompletableFuture<MinecraftProfile> future = CompletableFuture.completedFuture(null);
 
 		for (ProfileResolver resolver : resolvers) {
 			future = future.thenCompose(result -> {
@@ -27,9 +25,6 @@ public final class ChainedProfileResolver implements ProfileResolver {
 					return CompletableFuture.completedFuture(result);
 				}
 				return resolver.resolve(identifier);
-			}).exceptionally(e -> {
-				this.logger.error("Couldn't resolve profile", e);
-				return null;
 			});
 		}
 
@@ -38,7 +33,7 @@ public final class ChainedProfileResolver implements ProfileResolver {
 
 	@Override
 	public CompletableFuture<@Nullable MinecraftProfile> resolve(String username) {
-		CompletableFuture<@Nullable MinecraftProfile> future = CompletableFuture.completedFuture(null);
+		CompletableFuture<MinecraftProfile> future = CompletableFuture.completedFuture(null);
 
 		for (ProfileResolver resolver : resolvers) {
 			future = future.thenCompose(result -> {
@@ -46,9 +41,6 @@ public final class ChainedProfileResolver implements ProfileResolver {
 					return CompletableFuture.completedFuture(result);
 				}
 				return resolver.resolve(username);
-			}).exceptionally(e -> {
-				this.logger.error("Couldn't resolve profile", e);
-				return null;
 			});
 		}
 

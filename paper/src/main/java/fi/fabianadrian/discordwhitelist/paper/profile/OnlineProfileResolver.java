@@ -1,7 +1,7 @@
 package fi.fabianadrian.discordwhitelist.paper.profile;
 
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;

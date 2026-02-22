@@ -12,10 +12,7 @@ import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.ProxyServer;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.Platform;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.LuckPermsProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.crafthead.PlayerDBProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import fi.fabianadrian.discordwhitelist.velocity.listener.LoginListener;
 import fi.fabianadrian.discordwhitelist.velocity.profile.OnlineProfileResolver;
 import net.kyori.adventure.audience.Audience;
@@ -28,7 +25,6 @@ import org.slf4j.Logger;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public final class DiscordWhitelistVelocity implements Platform {
@@ -37,7 +33,7 @@ public final class DiscordWhitelistVelocity implements Platform {
 	private final Path dataDirectory;
 	private final Injector injector;
 	private final DiscordWhitelist discordWhitelist;
-	private ChainedProfileResolver profileResolver;
+	private final ProfileResolver onlineProfileResolver;
 	private VelocityCommandManager<Audience> commandManager;
 
 	@Inject
@@ -47,6 +43,8 @@ public final class DiscordWhitelistVelocity implements Platform {
 		this.dataDirectory = dataDirectory;
 		this.injector = injector;
 
+		this.onlineProfileResolver = new OnlineProfileResolver(server);
+
 		createCommandManager();
 
 		this.discordWhitelist = new DiscordWhitelist(this);
@@ -54,16 +52,6 @@ public final class DiscordWhitelistVelocity implements Platform {
 
 	@Subscribe
 	public void onProxyInitialization(ProxyInitializeEvent event) {
-		List<ProfileResolver> resolvers = new ArrayList<>();
-		resolvers.add(new OnlineProfileResolver(this.server));
-
-		if (this.server.getPluginManager().isLoaded("luckperms")) {
-			resolvers.add(new LuckPermsProfileResolver());
-		}
-
-		resolvers.add(new PlayerDBProfileResolver());
-		this.profileResolver = new ChainedProfileResolver(this.logger, resolvers);
-
 		try {
 			this.discordWhitelist.load();
 		} catch (SQLException ignored) {
@@ -83,8 +71,8 @@ public final class DiscordWhitelistVelocity implements Platform {
 	}
 
 	@Override
-	public ChainedProfileResolver profileResolver() {
-		return this.profileResolver;
+	public ProfileResolver onlineProfileResolver() {
+		return this.onlineProfileResolver;
 	}
 
 	@Override

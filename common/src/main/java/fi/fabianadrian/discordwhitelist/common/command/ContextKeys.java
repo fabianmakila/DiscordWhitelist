@@ -1,6 +1,6 @@
 package fi.fabianadrian.discordwhitelist.common.command;
 
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import org.incendo.cloud.key.CloudKey;
 
 public final class ContextKeys {

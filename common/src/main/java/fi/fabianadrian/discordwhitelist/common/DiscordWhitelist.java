@@ -13,7 +13,9 @@ import fi.fabianadrian.discordwhitelist.common.config.DiscordWhitelistConfig;
 import fi.fabianadrian.discordwhitelist.common.data.DataManager;
 import fi.fabianadrian.discordwhitelist.common.discord.DiscordBot;
 import fi.fabianadrian.discordwhitelist.common.locale.TranslationManager;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.ChainedProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.LuckPermsProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.PlayerDBProfileResolver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.permission.PermissionChecker;
@@ -35,11 +37,18 @@ public final class DiscordWhitelist {
 	private final ConfigManager configManager;
 	private final TranslationManager translationManager;
 	private final DataManager dataManager;
+	private final ChainedProfileResolver profileResolver;
 	private DiscordBot discordBot;
 	private JDA6CommandManager<JDAInteraction> discordCommandManager;
 
 	public DiscordWhitelist(Platform platform) {
 		this.platform = platform;
+
+		this.profileResolver = new ChainedProfileResolver(List.of(
+				platform.onlineProfileResolver(),
+				new LuckPermsProfileResolver(platform.logger()),
+				new PlayerDBProfileResolver()
+		));
 
 		this.translationManager = new TranslationManager(
 				logger(),
@@ -77,7 +86,7 @@ public final class DiscordWhitelist {
 	}
 
 	public ChainedProfileResolver profileResolver() {
-		return this.platform.profileResolver();
+		return this.profileResolver;
 	}
 
 	public DiscordWhitelistConfig config() {

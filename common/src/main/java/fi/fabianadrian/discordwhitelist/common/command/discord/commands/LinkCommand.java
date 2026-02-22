@@ -6,7 +6,7 @@ import fi.fabianadrian.discordwhitelist.common.command.parser.MinecraftProfilePa
 import fi.fabianadrian.discordwhitelist.common.data.Data;
 import fi.fabianadrian.discordwhitelist.common.data.DataManager;
 import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.kyori.adventure.text.Component;

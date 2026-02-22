@@ -1,7 +1,7 @@
 package fi.fabianadrian.discordwhitelist.common.command.parser;
 
 import fi.fabianadrian.discordwhitelist.common.command.ContextKeys;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.incendo.cloud.caption.Caption;
 import org.incendo.cloud.caption.CaptionVariable;
@@ -13,7 +13,6 @@ import org.incendo.cloud.parser.ArgumentParseResult;
 import org.incendo.cloud.parser.ArgumentParser;
 import org.incendo.cloud.parser.ParserDescriptor;
 
-import java.util.concurrent.CompletionException;
 import java.util.regex.Pattern;
 
 
@@ -36,17 +35,12 @@ public final class MinecraftProfileParser<C> implements ArgumentParser<C, Minecr
 			return ArgumentParseResult.failure(new InvalidProfileNameException(username, context));
 		}
 
-		try {
-			MinecraftProfile profile = context.get(ContextKeys.PROFILE_RESOLVER).resolve(username).join();
-			if (profile == null) {
-				return ArgumentParseResult.failure(new PlayerProfileParseException(username, context));
-			}
-			commandInput.readString();
-			return ArgumentParseResult.success(profile);
-
-		} catch (CompletionException e) {
+		MinecraftProfile profile = context.get(ContextKeys.PROFILE_RESOLVER).resolve(username).join();
+		if (profile == null) {
 			return ArgumentParseResult.failure(new PlayerProfileParseException(username, context));
 		}
+		commandInput.readString();
+		return ArgumentParseResult.success(profile);
 	}
 
 	public static final class InvalidProfileNameException extends ParserException {

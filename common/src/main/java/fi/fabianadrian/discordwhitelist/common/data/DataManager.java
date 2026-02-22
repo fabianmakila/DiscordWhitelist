@@ -8,7 +8,6 @@ import fi.fabianadrian.discordwhitelist.common.storage.SQLiteStorage;
 import fi.fabianadrian.discordwhitelist.common.storage.Storage;
 import org.flywaydb.core.api.FlywayException;
 
-import java.security.Key;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Collection;

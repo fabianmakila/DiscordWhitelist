@@ -1,6 +1,6 @@
 package fi.fabianadrian.discordwhitelist.common;
 
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.resolver.ChainedProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.ProfileResolver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
 import org.incendo.cloud.CommandManager;
@@ -13,7 +13,7 @@ public interface Platform extends ForwardingAudience.Single {
 
 	Logger logger();
 
-	ChainedProfileResolver profileResolver();
+	ProfileResolver onlineProfileResolver();
 
 	CommandManager<Audience> commandManager();
 }

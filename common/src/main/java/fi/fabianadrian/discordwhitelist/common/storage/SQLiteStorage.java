@@ -3,7 +3,7 @@ package fi.fabianadrian.discordwhitelist.common.storage;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.data.Data;
 import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
-import fi.fabianadrian.discordwhitelist.common.profile.minecraft.MinecraftProfile;
+import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.sqlite.SQLiteDataSource;
