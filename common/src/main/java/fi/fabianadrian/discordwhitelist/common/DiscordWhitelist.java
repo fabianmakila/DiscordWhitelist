@@ -37,18 +37,12 @@ public final class DiscordWhitelist {
 	private final ConfigManager configManager;
 	private final TranslationManager translationManager;
 	private final DataManager dataManager;
-	private final ChainedProfileResolver profileResolver;
+	private ChainedProfileResolver profileResolver;
 	private DiscordBot discordBot;
 	private JDA6CommandManager<JDAInteraction> discordCommandManager;
 
 	public DiscordWhitelist(Platform platform) {
 		this.platform = platform;
-
-		this.profileResolver = new ChainedProfileResolver(List.of(
-				platform.onlineProfileResolver(),
-				new LuckPermsProfileResolver(platform.logger()),
-				new PlayerDBProfileResolver()
-		));
 
 		this.translationManager = new TranslationManager(
 				logger(),
@@ -67,6 +61,12 @@ public final class DiscordWhitelist {
 
 		this.translationManager.load();
 		this.translationManager.defaultLocale(config().defaultLocale());
+
+		this.profileResolver = new ChainedProfileResolver(List.of(
+				this.platform.onlineProfileResolver(),
+				new LuckPermsProfileResolver(this.platform.logger()),
+				new PlayerDBProfileResolver()
+		));
 
 		this.dataManager.load();
 
