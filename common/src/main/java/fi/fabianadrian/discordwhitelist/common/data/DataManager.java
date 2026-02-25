@@ -50,7 +50,7 @@ public final class DataManager {
 		return CompletableFuture.supplyAsync(() -> this.cache.get(minecraftIdentifier, uuid -> {
 			try {
 				return this.storage.selectByMinecraftIdentifier(uuid);
-			} catch (SQLException e) {
+			} catch (Throwable e) {
 				this.discordWhitelist.logger().error("Couldn't find data", e);
 				throw new CompletionException(e);
 			}

@@ -8,6 +8,7 @@ import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.context.CommandContext;
@@ -21,6 +22,7 @@ import java.util.UUID;
 
 public final class LookupCommand extends MinecraftCommand {
 	private static final String PERMISSION = "discordwhitelist.command.lookup";
+	private static final TranslatableComponent COMPONENT_MINECRAFT_EMPTY = Component.translatable("discordwhitelist.command.minecraft.lookup.minecraft.empty");
 
 	public LookupCommand(DiscordWhitelist discordWhitelist) {
 		super(discordWhitelist, "lookup");
@@ -53,10 +55,13 @@ public final class LookupCommand extends MinecraftCommand {
 		}
 		super.discordWhitelist.dataManager().findByMinecraftIdentifier(uuid).thenAccept(data -> {
 			if (data == null) {
-				//TODO Message
+				context.sender().sendMessage(COMPONENT_MINECRAFT_EMPTY);
 				return;
 			}
 			context.sender().sendMessage(dataToComponent(data));
+		}).exceptionally(throwable -> {
+			//TODO Error message
+			return null;
 		});
 	}
 
