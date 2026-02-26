@@ -166,8 +166,8 @@ public final class SQLiteStorage implements Storage {
 
 	//TODO Implementation
 	@Override
-	public boolean deleteByMinecraftIdentifier(UUID minecraftIdentifier) throws SQLException {
-		return false;
+	public int deleteByMinecraftIdentifier(Data data) throws SQLException {
+		return 0;
 	}
 
 	@Override

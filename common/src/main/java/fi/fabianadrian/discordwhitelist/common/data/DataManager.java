@@ -20,11 +20,11 @@ import java.util.concurrent.Executors;
 public final class DataManager {
 	private final Executor executor = Executors.newSingleThreadExecutor();
 	private final DiscordWhitelist discordWhitelist;
-	private Storage storage;
 	private final Cache<UUID, Data> cache = Caffeine.newBuilder()
 			.maximumSize(1000)
 			.expireAfterWrite(Duration.ofSeconds(5))
 			.build();
+	private Storage storage;
 
 	public DataManager(DiscordWhitelist discordWhitelist) {
 		this.discordWhitelist = discordWhitelist;
@@ -83,10 +83,10 @@ public final class DataManager {
 		}, this.executor);
 	}
 
-	public CompletableFuture<Boolean> deleteByMinecraftIdentifier(UUID minecraftIdentifier) {
+	public CompletableFuture<Integer> deleteByMinecraftIdentifier(Data data) {
 		return CompletableFuture.supplyAsync(() -> {
 			try {
-				return this.storage.deleteByMinecraftIdentifier(minecraftIdentifier);
+				return this.storage.deleteByMinecraftIdentifier(data);
 			} catch (SQLException e) {
 				this.discordWhitelist.logger().error("Couldn't delete data", e);
 				throw new CompletionException(e);

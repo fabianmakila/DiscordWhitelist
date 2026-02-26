@@ -16,7 +16,7 @@ public interface Storage {
 
 	void upsert(Data data) throws SQLException;
 
-	boolean deleteByMinecraftIdentifier(UUID minecraftIdentifier) throws SQLException;
+	int deleteByMinecraftIdentifier(Data data) throws SQLException;
 
 	int deleteByDiscordIdentifier(long discordIdentifier) throws SQLException;
 

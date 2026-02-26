@@ -9,6 +9,7 @@ import fi.fabianadrian.discordwhitelist.common.profile.DiscordProfile;
 import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
+import org.intellij.lang.annotations.Language;
 import org.mariadb.jdbc.MariaDbDataSource;
 
 import java.sql.*;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 public final class MariaDBStorage implements Storage {
+	@Language("MariaDB")
 	private static final String STATEMENT_UPSERT_DISCORD = """
 			INSERT INTO dw_discord_profiles (
 				discord_identifier,
@@ -27,6 +29,7 @@ public final class MariaDBStorage implements Storage {
 			ON DUPLICATE KEY UPDATE
 				discord_username = VALUES(discord_username)
 			""";
+	@Language("MariaDB")
 	private static final String STATEMENT_UPSERT_MINECRAFT = """
 			INSERT INTO dw_minecraft_profiles (
 				minecraft_identifier,
@@ -38,6 +41,7 @@ public final class MariaDBStorage implements Storage {
 				minecraft_username = VALUES(minecraft_username),
 				discord_identifier = VALUES(discord_identifier)
 			""";
+	@Language("MariaDB")
 	private static final String STATEMENT_SELECT_BY_MINECRAFT_IDENTIFIER = """
 			SELECT
 					m.minecraft_username,
@@ -48,6 +52,7 @@ public final class MariaDBStorage implements Storage {
 					ON m.discord_identifier = d.discord_identifier
 				WHERE m.minecraft_identifier = ?
 			""";
+	@Language("MariaDB")
 	private static final String STATEMENT_SELECT_BY_DISCORD_IDENTIFIER = """
 			SELECT
 					m.minecraft_identifier,
@@ -58,9 +63,22 @@ public final class MariaDBStorage implements Storage {
 					ON m.discord_identifier = d.discord_identifier
 				WHERE m.discord_identifier = ?
 			""";
+	@Language("MariaDB")
 	private static final String STATEMENT_DELETE_BY_DISCORD_IDENTIFIER = """
 			DELETE FROM dw_discord_profiles
 			WHERE discord_identifier = ?
+			""";
+	@Language("MariaDB")
+	private static final String STATEMENT_DELETE_BY_MINECRAFT_IDENTIFIER = """
+			DELETE FROM dw_minecraft_profiles WHERE minecraft_identifier = ?
+			""";
+	@Language("MariaDB")
+	private static final String STATEMENT_DELETE_BY_DISCORD_IDENTIFIER_IF_ORPHAN = """
+				DELETE FROM dw_discord_profiles
+			WHERE discord_identifier = ?
+			AND NOT EXISTS (
+				SELECT 1 FROM dw_minecraft_profiles WHERE discord_identifier = ?
+			);
 			""";
 	private final HikariDataSource source;
 	private final Flyway flyway;
@@ -169,8 +187,25 @@ public final class MariaDBStorage implements Storage {
 	}
 
 	@Override
-	public boolean deleteByMinecraftIdentifier(UUID minecraftIdentifier) throws SQLException {
-		return false;
+	public int deleteByMinecraftIdentifier(Data data) throws SQLException {
+		try (Connection connection = this.source.getConnection()) {
+			connection.setAutoCommit(false);
+
+			int affected = 0;
+			try (PreparedStatement minecraftStatement = connection.prepareStatement(STATEMENT_DELETE_BY_MINECRAFT_IDENTIFIER)) {
+				minecraftStatement.setString(1, data.minecraftProfile().identifier().toString());
+				affected += minecraftStatement.executeUpdate();
+			}
+
+			if (data.discordProfile() != null) {
+				try (PreparedStatement discordStatement = connection.prepareStatement(STATEMENT_DELETE_BY_DISCORD_IDENTIFIER_IF_ORPHAN)) {
+					discordStatement.setLong(1, data.discordProfile().identifier());
+					affected += discordStatement.executeUpdate();
+				}
+			}
+			connection.commit();
+			return affected;
+		}
 	}
 
 	@Override

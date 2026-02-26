@@ -31,7 +31,7 @@ public final class RemoveCommand extends MinecraftCommand {
 
 	private void handle(CommandContext<Audience> context) {
 		Data data = context.get("player");
-		this.dataManager.deleteByMinecraftIdentifier(data.minecraftProfile().identifier())
+		this.dataManager.deleteByMinecraftIdentifier(data)
 				.thenAccept(success -> context.sender().sendMessage(Component.translatable(
 						"discordwhitelist.command.minecraft.remove",
 						Argument.component("player", data.minecraftProfile().asComponent())
