@@ -5,8 +5,10 @@ import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCaptionPro
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.LinkCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.TicketCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.UnlinkCommand;
+import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.AddCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.LookupCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.ReloadCommand;
+import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.RemoveCommand;
 import fi.fabianadrian.discordwhitelist.common.command.processor.DiscordWhitelistPreprocessor;
 import fi.fabianadrian.discordwhitelist.common.config.ConfigManager;
 import fi.fabianadrian.discordwhitelist.common.config.DiscordWhitelistConfig;
@@ -152,8 +154,10 @@ public final class DiscordWhitelist {
 
 	private void registerMinecraftCommands() {
 		List.of(
+				new AddCommand(this),
+				new LookupCommand(this),
 				new ReloadCommand(this),
-				new LookupCommand(this)
+				new RemoveCommand(this)
 		).forEach(AbstractCommand::register);
 	}
 }
