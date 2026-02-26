@@ -12,6 +12,7 @@ import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.context.CommandContext;
+import org.incendo.cloud.exception.CommandExecutionException;
 import org.incendo.cloud.parser.ArgumentParser;
 import org.incendo.cloud.parser.standard.LongParser;
 import org.incendo.cloud.parser.standard.StringParser;
@@ -60,8 +61,7 @@ public final class LookupCommand extends MinecraftCommand {
 			}
 			context.sender().sendMessage(dataToComponent(data));
 		}).exceptionally(throwable -> {
-			//TODO Error message
-			return null;
+			throw new CommandExecutionException(throwable);
 		});
 	}
 

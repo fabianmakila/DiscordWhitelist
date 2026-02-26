@@ -16,6 +16,7 @@ import fi.fabianadrian.discordwhitelist.common.locale.TranslationManager;
 import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.ChainedProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.LuckPermsProfileResolver;
 import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.PlayerDBProfileResolver;
+import fi.fabianadrian.discordwhitelist.common.profile.resolver.minecraft.WhitelistedProfileResolver;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.permission.PermissionChecker;
@@ -64,6 +65,7 @@ public final class DiscordWhitelist {
 
 		this.profileResolver = new ChainedProfileResolver(List.of(
 				this.platform.onlineProfileResolver(),
+				new WhitelistedProfileResolver(this.dataManager),
 				new LuckPermsProfileResolver(this.platform.logger()),
 				new PlayerDBProfileResolver()
 		));

@@ -18,5 +18,6 @@ public final class DiscordWhitelistPreprocessor<S> implements CommandPreprocesso
 	public void accept(@NonNull CommandPreprocessingContext<S> context) {
 		CommandContext<S> commandContext = context.commandContext();
 		commandContext.store(ContextKeys.PROFILE_RESOLVER, this.discordWhitelist.profileResolver());
+		commandContext.store(ContextKeys.DATA_MANAGER, this.discordWhitelist.dataManager());
 	}
 }
