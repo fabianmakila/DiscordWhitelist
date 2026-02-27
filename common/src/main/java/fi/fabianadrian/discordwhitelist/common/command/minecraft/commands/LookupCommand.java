@@ -16,7 +16,6 @@ import org.incendo.cloud.exception.CommandExecutionException;
 import org.incendo.cloud.parser.ArgumentParser;
 import org.incendo.cloud.parser.standard.LongParser;
 import org.incendo.cloud.parser.standard.StringParser;
-import org.incendo.cloud.parser.standard.UUIDParser;
 import org.incendo.cloud.type.Either;
 
 import java.util.UUID;
@@ -35,34 +34,36 @@ public final class LookupCommand extends MinecraftCommand {
 
 		super.manager.command(builder
 				.literal("minecraft")
-				.required("identifier|username", ArgumentParser.firstOf(UUIDParser.uuidParser(), MinecraftProfileParser.minecraftProfileParser()))
+				.required("player", MinecraftProfileParser.minecraftProfileParser())
 				.handler(this::handleMinecraft)
 		);
 
 		super.manager.command(builder
 				.literal("discord")
-				.required("identifier|username", ArgumentParser.firstOf(LongParser.longParser(0), StringParser.stringParser())) //TODO Maybe add DiscordProfileParser?
+				.required("player", ArgumentParser.firstOf(LongParser.longParser(0), StringParser.stringParser())) //TODO Maybe add DiscordProfileParser?
 				.handler(this::handleDiscord)
 		);
 	}
 
 	private void handleMinecraft(CommandContext<Audience> context) {
-		Either<UUID, MinecraftProfile> either = context.get("identifier|username");
+		Either<UUID, MinecraftProfile> either = context.get("player");
 		UUID uuid;
 		if (either.primary().isPresent()) {
 			uuid = either.primary().get();
 		} else {
 			uuid = either.fallback().get().identifier();
 		}
-		super.discordWhitelist.dataManager().findByMinecraftIdentifier(uuid).thenAccept(data -> {
-			if (data == null) {
-				context.sender().sendMessage(COMPONENT_MINECRAFT_EMPTY);
-				return;
-			}
-			context.sender().sendMessage(dataToComponent(data));
-		}).exceptionally(throwable -> {
-			throw new CommandExecutionException(throwable);
-		});
+		super.discordWhitelist.dataManager().findByMinecraftIdentifier(uuid)
+				.exceptionally(throwable -> {
+					throw new CommandExecutionException(throwable);
+				})
+				.thenAccept(data -> {
+					if (data == null) {
+						context.sender().sendMessage(COMPONENT_MINECRAFT_EMPTY);
+						return;
+					}
+					context.sender().sendMessage(dataToComponent(data));
+				});
 	}
 
 	private void handleDiscord(CommandContext<Audience> context) {
