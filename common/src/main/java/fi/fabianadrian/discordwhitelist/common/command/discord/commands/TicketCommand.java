@@ -33,14 +33,14 @@ public final class TicketCommand extends DiscordCommand {
 		this.discordWhitelist.discordBot().ticketFactory().create(member)
 				.thenAccept(result -> {
 					if (result == TicketCreationResult.MISSING_CATEGORY) {
-						sendMessage(context, "discord.ticket.missing-category");
+						sendMessage(context, "ticket.missing-category");
 						return;
 					}
-					sendMessage(context, "discord.ticket.ticket-created");
+					sendMessage(context, "ticket.ticket-created");
 				})
 				.exceptionally(throwable -> {
 					super.discordWhitelist.logger().warn("Failed to create a ticket channel", throwable);
-					sendMessage(context, "discord.ticket.creation-failed");
+					sendMessage(context, "ticket.creation-failed");
 					return null;
 				})
 		;

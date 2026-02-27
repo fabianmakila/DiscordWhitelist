@@ -2,27 +2,20 @@ package fi.fabianadrian.discordwhitelist.common.command.minecraft.commands;
 
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.MinecraftCommand;
-import fi.fabianadrian.discordwhitelist.common.command.parser.MinecraftProfileParser;
+import fi.fabianadrian.discordwhitelist.common.command.parser.DataParser;
 import fi.fabianadrian.discordwhitelist.common.data.Data;
-import fi.fabianadrian.discordwhitelist.common.profile.MinecraftProfile;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
-import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.minimessage.translation.Argument;
 import org.incendo.cloud.Command;
 import org.incendo.cloud.context.CommandContext;
-import org.incendo.cloud.exception.CommandExecutionException;
 import org.incendo.cloud.parser.ArgumentParser;
 import org.incendo.cloud.parser.standard.LongParser;
 import org.incendo.cloud.parser.standard.StringParser;
-import org.incendo.cloud.type.Either;
-
-import java.util.UUID;
 
 public final class LookupCommand extends MinecraftCommand {
 	private static final String PERMISSION = "discordwhitelist.command.lookup";
-	private static final TranslatableComponent COMPONENT_MINECRAFT_EMPTY = Component.translatable("discordwhitelist.command.minecraft.lookup.minecraft.empty");
 
 	public LookupCommand(DiscordWhitelist discordWhitelist) {
 		super(discordWhitelist, "lookup");
@@ -34,7 +27,7 @@ public final class LookupCommand extends MinecraftCommand {
 
 		super.manager.command(builder
 				.literal("minecraft")
-				.required("player", MinecraftProfileParser.minecraftProfileParser())
+				.required("player", DataParser.dataParser())
 				.handler(this::handleMinecraft)
 		);
 
@@ -46,24 +39,8 @@ public final class LookupCommand extends MinecraftCommand {
 	}
 
 	private void handleMinecraft(CommandContext<Audience> context) {
-		Either<UUID, MinecraftProfile> either = context.get("player");
-		UUID uuid;
-		if (either.primary().isPresent()) {
-			uuid = either.primary().get();
-		} else {
-			uuid = either.fallback().get().identifier();
-		}
-		super.discordWhitelist.dataManager().findByMinecraftIdentifier(uuid)
-				.exceptionally(throwable -> {
-					throw new CommandExecutionException(throwable);
-				})
-				.thenAccept(data -> {
-					if (data == null) {
-						context.sender().sendMessage(COMPONENT_MINECRAFT_EMPTY);
-						return;
-					}
-					context.sender().sendMessage(dataToComponent(data));
-				});
+		Data data = context.get("player");
+		context.sender().sendMessage(dataToComponent(data));
 	}
 
 	private void handleDiscord(CommandContext<Audience> context) {

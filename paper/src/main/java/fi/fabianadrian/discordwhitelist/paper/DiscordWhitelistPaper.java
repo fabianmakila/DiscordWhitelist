@@ -8,6 +8,8 @@ import fi.fabianadrian.discordwhitelist.paper.listener.JoinListener;
 import fi.fabianadrian.discordwhitelist.paper.profile.OnlineProfileResolver;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.audience.Audience;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.incendo.cloud.SenderMapper;
@@ -19,6 +21,8 @@ import org.slf4j.Logger;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public final class DiscordWhitelistPaper extends JavaPlugin implements Platform {
 	private DiscordWhitelist discordWhitelist;
@@ -59,6 +63,15 @@ public final class DiscordWhitelistPaper extends JavaPlugin implements Platform 
 	@Override
 	public PaperCommandManager<Audience> commandManager() {
 		return this.commandManager;
+	}
+
+	@Override
+	public CompletableFuture<Stream<String>> onlinePlayerNames() {
+		CompletableFuture<Stream<String>> future = new CompletableFuture<>();
+		Bukkit.getScheduler().runTask(this, () -> future.complete(
+				getServer().getOnlinePlayers().stream().map(Player::getName)
+		));
+		return future;
 	}
 
 	@Override

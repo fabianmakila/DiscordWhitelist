@@ -18,7 +18,7 @@ public final class DiscordCaptionProvider implements CaptionProvider<JDAInteract
 
 	@Override
 	public @NotNull String provide(@NonNull Caption caption, @NotNull JDAInteraction recipient) {
-		String key = "discordwhitelist.command." + caption.key();
+		String key = "discordwhitelist.command.discord." + caption.key();
 		String provided = this.bundle.provide(Caption.of(key), recipient);
 		if (provided == null) {
 			return key;

@@ -33,7 +33,7 @@ public final class MinecraftProfileParser<C> implements ArgumentParser.FutureArg
 	@Override
 	public @NonNull CompletableFuture<@NonNull ArgumentParseResult<MinecraftProfile>> parseFuture(@NonNull CommandContext<C> context, @NonNull CommandInput input) {
 		final String inputString = input.peekString();
-		final ProfileResolver resolver = context.get(ContextKeys.PROFILE_RESOLVER);
+		final ProfileResolver resolver = context.get(ContextKeys.DISCORD_WHITELIST).profileResolver();
 
 		CompletableFuture<MinecraftProfile> future;
 		try {

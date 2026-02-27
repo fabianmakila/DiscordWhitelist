@@ -53,13 +53,13 @@ public final class LinkCommand extends DiscordCommand {
 			if (discordProfile.identifier().equals(user.getIdLong())) {
 				sendMessage(
 						context,
-						"discord.link.already-linked.self",
+						"link.already-linked.self",
 						CaptionVariable.of("minecraft-username", minecraftProfile.username())
 				);
 			} else {
 				sendMessage(
 						context,
-						"discord.link.already-linked.other",
+						"link.already-linked.other",
 						CaptionVariable.of("discord-identifier", dataByMinecraftIdentifier.discordProfile().identifier().toString()),
 						CaptionVariable.of("minecraft-username", minecraftProfile.username())
 				);
@@ -72,7 +72,7 @@ public final class LinkCommand extends DiscordCommand {
 		if (dataByDiscordIdentifier.size() >= profileLimit) {
 			sendMessage(
 					context,
-					"discord.link.limit-reached",
+					"link.limit-reached",
 					CaptionVariable.of("limit", String.valueOf(profileLimit))
 			);
 			return;
@@ -84,7 +84,7 @@ public final class LinkCommand extends DiscordCommand {
 
 		sendMessage(
 				context,
-				"discord.link",
+				"link",
 				CaptionVariable.of("minecraft-username", minecraftProfile.username())
 		);
 		super.discordWhitelist.broadcast(

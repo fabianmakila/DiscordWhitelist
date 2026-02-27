@@ -5,6 +5,8 @@ import fi.fabianadrian.discordwhitelist.common.command.discord.DiscordCaptionPro
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.LinkCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.TicketCommand;
 import fi.fabianadrian.discordwhitelist.common.command.discord.commands.UnlinkCommand;
+import fi.fabianadrian.discordwhitelist.common.command.minecraft.MinecraftCaptionProvider;
+import fi.fabianadrian.discordwhitelist.common.command.minecraft.MinecraftExceptionHandler;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.AddCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.LookupCommand;
 import fi.fabianadrian.discordwhitelist.common.command.minecraft.commands.ReloadCommand;
@@ -32,6 +34,8 @@ import org.slf4j.Logger;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public final class DiscordWhitelist {
 	private final Platform platform;
@@ -119,6 +123,10 @@ public final class DiscordWhitelist {
 		});
 	}
 
+	public CompletableFuture<Stream<String>> onlinePlayerNames() {
+		return this.platform.onlinePlayerNames();
+	}
+
 	private void createDiscordCommandManager() {
 		JDA6CommandManager<JDAInteraction> commandManager = new JDA6CommandManager<>(
 				ExecutionCoordinator.asyncCoordinator(),
@@ -137,7 +145,12 @@ public final class DiscordWhitelist {
 	}
 
 	private void setupMinecraftCommandManager() {
-		minecraftCommandManager().registerCommandPreProcessor(new DiscordWhitelistPreprocessor<>(this));
+		CommandManager<Audience> commandManager = minecraftCommandManager();
+		commandManager.registerCommandPreProcessor(new DiscordWhitelistPreprocessor<>(this));
+		commandManager.captionRegistry().registerProvider(new MinecraftCaptionProvider());
+
+		commandManager.exceptionController().clearHandlers();
+		new MinecraftExceptionHandler(logger()).register(commandManager);
 	}
 
 	private void registerDiscordCommands() {

@@ -7,6 +7,8 @@ import org.incendo.cloud.CommandManager;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public interface Platform extends ForwardingAudience.Single {
 	Path dataDirectory();
@@ -16,4 +18,6 @@ public interface Platform extends ForwardingAudience.Single {
 	ProfileResolver onlineProfileResolver();
 
 	CommandManager<Audience> commandManager();
+
+	CompletableFuture<Stream<String>> onlinePlayerNames();
 }

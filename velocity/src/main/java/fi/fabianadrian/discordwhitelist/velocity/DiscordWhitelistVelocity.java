@@ -9,6 +9,7 @@ import com.velocitypowered.api.event.EventManager;
 import com.velocitypowered.api.event.Subscribe;
 import com.velocitypowered.api.event.proxy.ProxyInitializeEvent;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
+import com.velocitypowered.api.proxy.Player;
 import com.velocitypowered.api.proxy.ProxyServer;
 import fi.fabianadrian.discordwhitelist.common.DiscordWhitelist;
 import fi.fabianadrian.discordwhitelist.common.Platform;
@@ -26,6 +27,8 @@ import org.slf4j.Logger;
 import java.nio.file.Path;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 public final class DiscordWhitelistVelocity implements Platform {
 	private final ProxyServer server;
@@ -78,6 +81,11 @@ public final class DiscordWhitelistVelocity implements Platform {
 	@Override
 	public VelocityCommandManager<Audience> commandManager() {
 		return this.commandManager;
+	}
+
+	@Override
+	public CompletableFuture<Stream<String>> onlinePlayerNames() {
+		return CompletableFuture.completedFuture(this.server.getAllPlayers().stream().map(Player::getUsername));
 	}
 
 	public DiscordWhitelist discordWhitelist() {

@@ -29,9 +29,9 @@ public final class UnlinkCommand extends DiscordCommand {
 		User user = context.get("discord-username");
 		int modified = this.dataManager.deleteByDiscordIdentifier(user.getIdLong()).join();
 		if (modified > 0) {
-			sendMessage(context, "discord.unlink");
+			sendMessage(context, "unlink");
 		} else {
-			sendMessage(context, "discord.unlink.not-linked");
+			sendMessage(context, "unlink.not-linked");
 		}
 	}
 }
