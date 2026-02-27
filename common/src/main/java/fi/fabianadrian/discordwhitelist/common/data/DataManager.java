@@ -46,10 +46,6 @@ public final class DataManager {
 		}
 	}
 
-	public CompletableFuture<Data> findByMinecraftUsername(String username) {
-		return CompletableFuture.completedFuture(null); //TODO Implementation
-	}
-
 	public CompletableFuture<Data> findByMinecraftIdentifier(UUID minecraftIdentifier) {
 		return CompletableFuture.supplyAsync(() -> this.cache.get(minecraftIdentifier, uuid -> {
 			try {
