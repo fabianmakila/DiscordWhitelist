@@ -19,8 +19,8 @@ import org.incendo.cloud.suggestion.SuggestionProvider;
 import java.util.concurrent.CompletableFuture;
 
 public final class DataParser<C> implements ArgumentParser.FutureArgumentParser<C, Data>, SuggestionProvider<String> {
-	public static <C> @NonNull ParserDescriptor<C, MinecraftProfile> dataParser() {
-		return ParserDescriptor.of(new MinecraftProfileParser<>(), MinecraftProfile.class);
+	public static <C> @NonNull ParserDescriptor<C, Data> dataParser() {
+		return ParserDescriptor.of(new DataParser<>(), Data.class);
 	}
 
 	@Override
