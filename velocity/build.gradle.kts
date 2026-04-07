@@ -13,7 +13,6 @@ dependencies {
 velocityPluginJson {
 	main = "fi.fabianadrian.discordwhitelist.velocity.DiscordWhitelistVelocity"
 	id = "discordwhitelist"
-	dependencies {
-		dependency("luckperms", optional = true)
-	}
+	name = prefixedPluginName
+	authors.add("FabianAdrian")
 }

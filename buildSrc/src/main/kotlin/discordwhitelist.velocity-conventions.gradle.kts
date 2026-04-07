@@ -3,11 +3,6 @@ plugins {
 	id("xyz.jpenilla.resource-factory-velocity-convention")
 }
 
-velocityPluginJson {
-	name = prefixedPluginName
-	authors.add("FabianAdrian")
-}
-
 tasks {
 	shadowJar {
 		listOf(
@@ -22,9 +17,12 @@ tasks {
 			"net.dv8tion.jda",
 			"okhttp3",
 			"okio",
-			"kotlin"
+			"kotlin",
+			"org.flywaydb",
+			"org.mariadb",
 		).forEach {
 			relocate(it, "fi.fabianadrian.discordwhitelist.dependency.$it")
 		}
+		mergeServiceFiles()
 	}
 }

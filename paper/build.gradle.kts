@@ -1,5 +1,3 @@
-import xyz.jpenilla.resourcefactory.paper.PaperPluginYaml
-
 plugins {
 	id("discordwhitelist.paper-conventions")
 }
@@ -16,12 +14,4 @@ paperPluginYaml {
 	name = prefixedPluginName
 	author = "FabianAdrian"
 	apiVersion = "1.21.11"
-	dependencies {
-		server {
-			register("LuckPerms") {
-				required = false
-				load = PaperPluginYaml.Load.BEFORE
-			}
-		}
-	}
 }
