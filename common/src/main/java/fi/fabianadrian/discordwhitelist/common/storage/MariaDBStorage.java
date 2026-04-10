@@ -77,7 +77,7 @@ public final class MariaDBStorage implements Storage {
 				DELETE FROM dw_discord_profiles
 			WHERE discord_identifier = ?
 			AND NOT EXISTS (
-				SELECT 1 FROM dw_minecraft_profiles WHERE discord_identifier = ?
+				SELECT 1 FROM dw_minecraft_profiles WHERE discord_identifier = dw_discord_profiles.discord_identifier
 			);
 			""";
 	private final HikariDataSource source;
