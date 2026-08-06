@@ -7,7 +7,7 @@ group = rootProject.group
 version = rootProject.version
 description = rootProject.description
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 
 tasks {
 	compileJava {
